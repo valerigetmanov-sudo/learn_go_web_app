@@ -26,14 +26,36 @@
         </div>
     </nav>
 
-    <div class="container text-center">
-        <div class="card p-4 mb-4">
-            <h2 class="mb-3">Добро пожаловать!</h2>
-            <p class="lead">Давай начнем изучать русские глаголы движения.</p>
+ <div class="container text-center">
+        <div id="main-menu" class="card p-4 mb-4">
+            <h2 class="mb-3">Меню упражнений</h2>
+            <p class="lead text-muted">Выберите тему для практики:</p>
             <hr>
             <div id="menu-buttons" class="d-grid gap-3">
-                <p>Загрузка упражнений...</p>
+                <p>Загрузка данных из data.js...</p>
             </div>
+        </div>
+
+        <div id="exercise-area" class="card p-4 d-none">
+            <h3 id="upr-title" class="text-primary mb-4"></h3>
+            
+            <p id="upr-text" class="lead fs-2 my-4 fw-bold text-dark"></p>
+            
+            <div id="upr-buttons" class="d-grid gap-3">
+            </div>
+            
+            <button class="btn btn-link mt-5 text-decoration-none" onclick="location.reload()">
+                ← Вернуться к списку уроков
+            </button>
+        </div>
+    </div>
+
+        <div id="exercise-area" class="card p-4 d-none">
+            <h3 id="upr-title" class="text-primary mb-4"></h3>
+            <p id="upr-text" class="lead fs-3 my-4 fw-bold"></p>
+            <div id="upr-buttons" class="d-grid gap-3">
+                </div>
+            <button class="btn btn-link mt-4" onclick="location.reload()">На главную</button>
         </div>
     </div>
 

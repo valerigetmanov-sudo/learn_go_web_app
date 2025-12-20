@@ -14,6 +14,34 @@
         .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #457ab1; border: none; }
     </style>
+
+    window.onload = function() {
+        const menuBox = document.getElementById('menu-buttons');
+        
+        if (typeof upr !== 'undefined') {
+            menuBox.innerHTML = ''; 
+            
+            upr.forEach((item, index) => {
+                // В твоем массиве заголовок лежит в первом элементе подмассива: item[0].exver
+                const title = item[0].exver; 
+                
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-primary btn-lg mb-2';
+                btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
+                
+                btn.onclick = function() {
+                    // Вызываем функцию из upr.js
+                    if (typeof getupr === 'function') {
+                        getupr(index + 1);
+                    } else {
+                        alert('Ты выбрал: ' + title);
+                    }
+                };
+                
+                menuBox.appendChild(btn);
+            });
+        }
+    };
 </head>
 <script>
     // Эта функция сработает, когда страница полностью загрузится
@@ -78,9 +106,8 @@
 
 </body>
     <!-- Libraries: jQuery, jQuery Mobile, then app scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <script src="exall.js"></script>
     <script src="scripts/upr2.js"></script>
-    <script src="upr.js"></script>
+    <script src="data.js"></script>
+<script src="upr.js"></script>
 </html>

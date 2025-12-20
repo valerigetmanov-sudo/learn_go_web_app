@@ -6,75 +6,15 @@
     <title>Learn & Go - Учим глаголы движения</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
     
     <style>
-        body { background-color: #f8f9fa; font-family: sans-serif; }
-        .navbar { background-color: #457ab1; } /* Цвет как в твоем старом приложении */
+        body { background-color: #f8f9fa; font-family: sans-serif; padding-bottom: 70px; }
+        .navbar { background-color: #457ab1; }
         .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #457ab1; border: none; }
+        .btn-primary:hover { background-color: #365f8a; }
     </style>
-
-    window.onload = function() {
-        const menuBox = document.getElementById('menu-buttons');
-        
-        if (typeof upr !== 'undefined') {
-            menuBox.innerHTML = ''; 
-            
-            upr.forEach((item, index) => {
-                // В твоем массиве заголовок лежит в первом элементе подмассива: item[0].exver
-                const title = item[0].exver; 
-                
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-primary btn-lg mb-2';
-                btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
-                
-                btn.onclick = function() {
-                    // Вызываем функцию из upr.js
-                    if (typeof getupr === 'function') {
-                        getupr(index + 1);
-                    } else {
-                        alert('Ты выбрал: ' + title);
-                    }
-                };
-                
-                menuBox.appendChild(btn);
-            });
-        }
-    };
 </head>
-<script>
-    // Эта функция сработает, когда страница полностью загрузится
-    window.onload = function() {
-        console.log("Сайт готов к работе!");
-        
-        // Находим место, куда мы будем добавлять кнопки
-        const menuBox = document.getElementById('menu-buttons');
-        
-        // Давай проверим, загрузился ли наш файл с упражнениями
-        // В старом коде это называлось upr (упражнения)
-        if (typeof upr !== 'undefined') {
-            // Очищаем надпись "Загрузка..."
-            menuBox.innerHTML = ''; 
-            
-            // Берем каждое упражнение и делаем для него кнопку
-            upr.forEach((item, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'btn btn-primary btn-lg mb-2';
-                btn.innerText = 'Урок ' + (index + 1) + ': ' + item.name;
-                
-                // Когда нажмем на кнопку - покажем название урока
-                btn.onclick = function() {
-                    alert('Ты выбрал: ' + item.name);
-                };
-                
-                menuBox.appendChild(btn);
-            });
-        } else {
-            console.error("Файл upr.js не найден или пуст!");
-        }
-    };
-</script>
 <body>
 
     <nav class="navbar navbar-dark mb-4">
@@ -92,7 +32,7 @@
             <p class="lead">Давай начнем изучать русские глаголы движения.</p>
             <hr>
             <div id="menu-buttons" class="d-grid gap-3">
-                <button class="btn btn-primary btn-lg" onclick="alert('Скоро здесь появятся задания!')">Загрузка упражнений...</button>
+                <p>Загрузка упражнений...</p>
             </div>
         </div>
     </div>
@@ -104,10 +44,41 @@
         </div>
     </footer>
 
-</body>
-    <!-- Libraries: jQuery, jQuery Mobile, then app scripts -->
-    <script src="exall.js"></script>
-    <script src="scripts/upr2.js"></script>
     <script src="data.js"></script>
-<script src="upr.js"></script>
+
+    <script>
+        // Ждем полной загрузки страницы
+        window.onload = function() {
+            console.log("Скрипт меню запущен");
+            const menuBox = document.getElementById('menu-buttons');
+            
+            if (typeof upr !== 'undefined') {
+                menuBox.innerHTML = ''; 
+                
+                upr.forEach((item, index) => {
+                    // Берем заголовок из первого элемента массива (exver)
+                    const title = item[0].exver; 
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary btn-lg mb-2';
+                    btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
+                    
+                    btn.onclick = function() {
+                        if (typeof getupr === 'function') {
+                            getupr(index + 1);
+                        } else {
+                            alert('Выбран: ' + title);
+                        }
+                    };
+                    
+                    menuBox.appendChild(btn);
+                });
+            } else {
+                menuBox.innerHTML = '<p class="text-danger">Ошибка: данные upr не найдены в data.js</p>';
+            }
+        };
+    </script>
+
+    <script src="upr.js"></script>
+</body>
 </html>

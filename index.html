@@ -26,36 +26,31 @@
         </div>
     </nav>
 
- <div class="container text-center">
+    <div class="container text-center">
         <div id="main-menu" class="card p-4 mb-4">
             <h2 class="mb-3">Меню упражнений</h2>
             <p class="lead text-muted">Выберите тему для практики:</p>
             <hr>
             <div id="menu-buttons" class="d-grid gap-3">
-                <p>Загрузка данных из data.js...</p>
+                <p>Загрузка данных...</p>
             </div>
         </div>
 
         <div id="exercise-area" class="card p-4 d-none">
+            <div class="progress mb-4" style="height: 10px;">
+                <div id="upr-progress" class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" style="width: 0%; background-color: #457ab1;"></div>
+            </div>
+
             <h3 id="upr-title" class="text-primary mb-4"></h3>
-            
             <p id="upr-text" class="lead fs-2 my-4 fw-bold text-dark"></p>
             
             <div id="upr-buttons" class="d-grid gap-3">
-            </div>
+                </div>
             
             <button class="btn btn-link mt-5 text-decoration-none" onclick="location.reload()">
                 ← Вернуться к списку уроков
             </button>
-        </div>
-    </div>
-
-        <div id="exercise-area" class="card p-4 d-none">
-            <h3 id="upr-title" class="text-primary mb-4"></h3>
-            <p id="upr-text" class="lead fs-3 my-4 fw-bold"></p>
-            <div id="upr-buttons" class="d-grid gap-3">
-                </div>
-            <button class="btn btn-link mt-4" onclick="location.reload()">На главную</button>
         </div>
     </div>
 
@@ -69,34 +64,27 @@
     <script src="data.js"></script>
 
     <script>
-        // Ждем полной загрузки страницы
+        // Логика создания кнопок в меню
         window.onload = function() {
-            console.log("Скрипт меню запущен");
             const menuBox = document.getElementById('menu-buttons');
-            
             if (typeof upr !== 'undefined') {
                 menuBox.innerHTML = ''; 
-                
                 upr.forEach((item, index) => {
-                    // 1. Берем заголовок из первого элемента массива (exver)
                     const title = item[0].exver; 
-                    
                     const btn = document.createElement('button');
                     btn.className = 'btn btn-primary btn-lg mb-2';
                     btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
-                    
                     btn.onclick = function() {
                         if (typeof getupr === 'function') {
                             getupr(index + 1);
                         } else {
-                            alert('Выбран: ' + title);
+                            alert('Ошибка: Функция getupr не найдена в upr.js');
                         }
                     };
-                    
                     menuBox.appendChild(btn);
                 });
             } else {
-                menuBox.innerHTML = '<p class="text-danger">Ошибка: данные upr не найдены в data.js</p>';
+                menuBox.innerHTML = '<p class="text-danger">Ошибка: данные не найдены!</p>';
             }
         };
     </script>

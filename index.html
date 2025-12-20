@@ -13,7 +13,7 @@
         .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #457ab1; border: none; }
         .btn-primary:hover { background-color: #365f8a; }
-        /* Плавный переход для смены цвета кнопок */
+        /* Плавная анимация смены цвета кнопок при ответах */
         .btn { transition: all 0.3s ease; }
     </style>
 </head>
@@ -34,7 +34,7 @@
             <p class="lead text-muted">Выберите тему для практики:</p>
             <hr>
             <div id="menu-buttons" class="d-grid gap-3">
-                <p>Загрузка данных...</p>
+                <p>Загрузка упражнений...</p>
             </div>
         </div>
 
@@ -54,3 +54,68 @@
             </button>
         </div>
     </div>
+
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4" style="border-radius: 20px;">
+                <div class="modal-body">
+                    <div id="modal-icon" class="display-1 mb-3"></div>
+                    <h2 id="modal-title" class="mb-3"></h2>
+                    <p id="modal-text" class="lead mb-4"></p>
+                    <button type="button" class="btn btn-primary btn-lg w-100" data-bs-dismiss="modal">Продолжить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed-bottom bg-light border-top p-2">
+        <div class="container d-flex justify-content-around">
+            <button class="btn btn-outline-secondary btn-sm">Об авторе</button>
+            <button class="btn btn-outline-secondary btn-sm">Правила</button>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="data.js"></script>
+
+    <script>
+        function initMenu() {
+            console.log("Инициализация меню...");
+            const menuBox = document.getElementById('menu-buttons');
+            
+            // Проверяем, загружен ли массив upr из data.js
+            if (typeof upr !== 'undefined' && Array.isArray(upr)) {
+                menuBox.innerHTML = ''; // Очищаем текст "Загрузка..."
+                
+                upr.forEach((item, index) => {
+                    // Извлекаем название из первого элемента подмассива (exver)
+                    const title = (item[0] && item[0].exver) ? item[0].exver : "Урок " + (index + 1);
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-primary btn-lg mb-2';
+                    btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
+                    
+                    btn.onclick = function() {
+                        // Вызываем функцию запуска урока из upr.js
+                        if (typeof getupr === 'function') {
+                            getupr(index + 1);
+                        } else {
+                            console.error("Ошибка: функция getupr не найдена!");
+                        }
+                    };
+                    menuBox.appendChild(btn);
+                });
+            } else {
+                menuBox.innerHTML = '<p class="text-danger">Ошибка: данные не загружены. Проверьте data.js</p>';
+            }
+        }
+
+        // Запускаем создание меню, когда страница полностью готова
+        window.onload = initMenu;
+    </script>
+
+    <script src="upr.js"></script>
+
+</body>
+</html>

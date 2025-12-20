@@ -13,6 +13,8 @@
         .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .btn-primary { background-color: #457ab1; border: none; }
         .btn-primary:hover { background-color: #365f8a; }
+        /* Плавный переход для смены цвета кнопок */
+        .btn { transition: all 0.3s ease; }
     </style>
 </head>
 <body>
@@ -37,7 +39,7 @@
         </div>
 
         <div id="exercise-area" class="card p-4 d-none">
-            <div class="progress mb-4" style="height: 10px;">
+            <div class="progress mb-4" style="height: 12px;">
                 <div id="upr-progress" class="progress-bar progress-bar-striped progress-bar-animated" 
                      role="progressbar" style="width: 0%; background-color: #457ab1;"></div>
             </div>
@@ -45,50 +47,10 @@
             <h3 id="upr-title" class="text-primary mb-4"></h3>
             <p id="upr-text" class="lead fs-2 my-4 fw-bold text-dark"></p>
             
-            <div id="upr-buttons" class="d-grid gap-3">
-                </div>
+            <div id="upr-buttons" class="d-grid gap-3"></div>
             
             <button class="btn btn-link mt-5 text-decoration-none" onclick="location.reload()">
                 ← Вернуться к списку уроков
             </button>
         </div>
     </div>
-
-    <footer class="fixed-bottom bg-light border-top p-2">
-        <div class="container d-flex justify-content-around">
-            <button class="btn btn-outline-secondary btn-sm">Об авторе</button>
-            <button class="btn btn-outline-secondary btn-sm">Правила</button>
-        </div>
-    </footer>
-
-    <script src="data.js"></script>
-
-    <script>
-        // Логика создания кнопок в меню
-        window.onload = function() {
-            const menuBox = document.getElementById('menu-buttons');
-            if (typeof upr !== 'undefined') {
-                menuBox.innerHTML = ''; 
-                upr.forEach((item, index) => {
-                    const title = item[0].exver; 
-                    const btn = document.createElement('button');
-                    btn.className = 'btn btn-primary btn-lg mb-2';
-                    btn.innerText = 'Урок ' + (index + 1) + ': ' + title;
-                    btn.onclick = function() {
-                        if (typeof getupr === 'function') {
-                            getupr(index + 1);
-                        } else {
-                            alert('Ошибка: Функция getupr не найдена в upr.js');
-                        }
-                    };
-                    menuBox.appendChild(btn);
-                });
-            } else {
-                menuBox.innerHTML = '<p class="text-danger">Ошибка: данные не найдены!</p>';
-            }
-        };
-    </script>
-
-    <script src="upr.js"></script>
-</body>
-</html>

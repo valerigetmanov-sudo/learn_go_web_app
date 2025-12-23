@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learn & Go</title>
+    <title>Learn & Go - Глаголы движения</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
     <nav class="navbar navbar-dark mb-4 shadow-sm">
-        <div class="content-wrapper d-flex justify-content-between align-items-center px-3">
+        <div class="container content-wrapper d-flex justify-content-between align-items-center">
             <span class="navbar-brand mb-0 h1 d-flex align-items-center">
                 <img src="images/logo_hum.png" alt="Logo" width="30" class="me-2"> Learn & Go
             </span>
@@ -17,61 +18,87 @@
         </div>
     </nav>
 
-    <div class="content-wrapper px-3">
-        <div id="main-menu" class="card p-4 border-0 shadow-sm">
+    <div class="container">
+        <div id="main-menu" class="card p-4 content-wrapper border-0 shadow-sm">
             <div id="menu-buttons" class="d-grid gap-2"></div>
         </div>
 
-        <div id="exercise-area" class="card p-4 d-none border-0 shadow-lg">
+        <div id="exercise-area" class="card p-4 d-none content-wrapper border-0 shadow-lg">
             <div class="d-flex justify-content-between align-items-center mb-1">
-                <div id="question-counter" class="small fw-bold text-muted"></div>
+                <div id="question-counter" class="small fw-bold"></div>
                 <div id="lives-counter" class="d-flex"></div>
             </div>
-            <div class="progress mb-4" style="height: 6px;"><div id="upr-progress" class="progress-bar" style="width: 0%;"></div></div>
-            <div id="upr-title" class="text-center small text-muted text-uppercase mb-2"></div>
+            
+            <div id="segments-container" class="segments-grid mb-4"></div>
+
+            <div id="upr-title" class="text-center mb-2"></div>
             <div id="upr-text" class="lead my-4 fw-bold p-2 text-center"></div>
+            
             <div id="upr-buttons" class="d-grid gap-3 mb-3"></div>
+            
             <button id="ui-back-btn" class="btn btn-link mt-2 text-decoration-none small w-100" onclick="location.reload()"></button>
         </div>
     </div>
 
- <footer class="fixed-bottom app-footer border-top shadow-lg">
-    <div class="content-wrapper py-2 px-3">
-        <div id="footer-main" class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-                <select id="langSelect" class="form-select form-select-sm" onchange="changeLang(this.value)" style="width: auto; font-size: 0.7rem;"></select>
-                <button class="btn btn-sm btn-outline-secondary rounded-circle theme-toggle-btn" onclick="toggleTheme()">🌙</button>
-                
-                <div class="form-check form-switch ms-2">
-                    <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4 border-0 shadow" style="border-radius: 30px;">
+                <div class="modal-body">
+                    <div id="modal-icon" class="display-1 mb-3"></div>
+                    <h2 id="modal-title" class="mb-3 fw-bold"></h2>
+                    <div id="modal-text" class="lead mb-4 text-start small text-muted"></div>
+                    <button id="ui-modal-close" type="button" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" data-bs-dismiss="modal" style="border-radius: 50px; font-weight: 800;"></button>
                 </div>
-                <div class="ui-auto-label small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
-            </div>
-            <div><a href="#" class="text-decoration-none fw-bold small text-muted" onclick="showAbout()">RKI.Today</a></div>
-        </div>
-
-        <div id="footer-exercise" class="d-none justify-content-between align-items-center">
-            <div class="footer-col d-flex gap-2">
-                <button class="btn btn-light rounded-circle shadow-sm p-2" onclick="showHelp()">📖</button>
-                <button class="btn btn-light rounded-circle shadow-sm p-2" onclick="openFeedbackModal()">✉️</button>
-                <button class="btn btn-light rounded-circle shadow-sm p-2 theme-toggle-btn" onclick="toggleTheme()">🌙</button>
-
-                <div class="form-check form-switch ms-1 d-flex align-items-center">
-                    <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
-                    <div class="ui-auto-label ms-2 small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
-                </div>
-            </div>
-            <div class="footer-col">
-                <button id="next-btn" class="btn btn-go" onclick="nextQuestion()"></button>
             </div>
         </div>
     </div>
-</footer>
 
-    <div class="modal fade" id="resultModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-4 border-0 shadow" style="border-radius: 30px;"><div class="modal-body"><div id="modal-icon" class="display-1 mb-3"></div><h2 id="modal-title" class="mb-3 fw-bold"></h2><div id="modal-text" class="lead mb-4 text-start small text-muted"></div><button id="ui-modal-close" type="button" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" data-bs-dismiss="modal" style="border-radius: 50px; font-weight: 800;"></button></div></div></div></div>
-    <div class="modal fade" id="feedbackModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 border-0 shadow" style="border-radius: 25px;"><div class="modal-body text-center"><h4 id="ui-feed-title" class="fw-bold mb-3"></h4><textarea id="feedbackText" class="form-control mb-3" rows="4"></textarea><div id="debugInfo" class="d-none"></div><button id="ui-feed-send" type="button" class="btn btn-primary btn-lg w-100 py-3" onclick="sendFeedback()" style="border-radius: 50px;"></button></div></div></div></div>
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-4 border-0 shadow" style="border-radius: 25px;">
+                <div class="modal-body text-center">
+                    <h4 id="ui-feed-title" class="fw-bold mb-3"></h4>
+                    <textarea id="feedbackText" class="form-control mb-3" rows="4"></textarea>
+                    <button id="ui-feed-send" type="button" class="btn btn-primary btn-lg w-100 py-3 shadow-sm" onclick="sendFeedback()" style="border-radius: 50px;"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="fixed-bottom app-footer border-top shadow-lg">
+        <div class="container content-wrapper py-2">
+            <div id="footer-main" class="d-flex justify-content-between align-items-center">
+                <div class="footer-col d-flex align-items-center gap-2">
+                    <select id="langSelect" class="form-select form-select-sm" onchange="changeLang(this.value)" style="width: auto; font-size: 0.7rem; border-radius: 8px;"></select>
+                    <button class="btn btn-sm btn-outline-secondary rounded-circle theme-toggle-btn footer-btn-round" onclick="toggleTheme()">🌙</button>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
+                    </div>
+                    <div class="ui-auto-label small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
+                </div>
+                <div class="footer-col"><a href="#" class="text-decoration-none fw-bold small text-muted" onclick="showAbout()">RKI.Today</a></div>
+            </div>
+            
+            <div id="footer-exercise" class="d-none justify-content-between align-items-center">
+                <div class="footer-col d-flex gap-2 align-items-center">
+                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round" onclick="showHelp()"><img src="images/book-ask.png" width="24"></button>
+                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round" onclick="openFeedbackModal()"><img src="images/bug-report.png" width="24"></button>
+                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+                    <div class="form-check form-switch ms-1 d-flex align-items-center">
+                        <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
+                        <div class="ui-auto-label ms-2 small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
+                    </div>
+                </div>
+                <div class="footer-col"><button id="next-btn" class="btn btn-go px-4 py-2" onclick="nextQuestion()"></button></div>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lang.js"></script><script src="data_theory.js"></script><script src="data_verbs.js"></script><script src="data_prefixes.js"></script><script src="engin_app.js"></script>
+    <script src="lang.js"></script>
+    <script src="data_theory.js"></script>
+    <script src="data_verbs.js"></script>
+    <script src="data_prefixes.js"></script>
+    <script src="engin_app.js"></script>
 </body>
 </html>

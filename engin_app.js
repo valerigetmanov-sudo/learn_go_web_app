@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LEARN & GO - ENGINE (Updated with Analytics, Tags & Smart Feedback)
+   LEARN & GO - ENGINE (Full Version 2025)
    ========================================================================== */
 let currentLang = localStorage.getItem('userLang') || 'ru';
 let autoMode = localStorage.getItem('autoMode') !== 'false';
@@ -24,14 +24,14 @@ window.onload = function() {
     document.querySelectorAll('.ui-auto-label').forEach(el => el.innerText = t.ui_auto);
     document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = autoMode);
 
-    // Кнопка Теория (Общая)
+    // Кнопка Теория (Общая в меню)
     const theoryBtn = document.createElement('button');
     theoryBtn.className = 'btn btn-theory btn-lg mb-4 py-3 w-100 shadow-sm';
     theoryBtn.innerHTML = `📖 ${t.ui_theory}`;
-    theoryBtn.onclick = () => showHelp(null); // null для общей теории
+    theoryBtn.onclick = () => showHelp(null); 
     menuBox.appendChild(theoryBtn);
 
-    // Отрисовка уроков
+    // Генерация списка уроков
     const createHeader = (text) => {
         const h = document.createElement('div');
         h.className = 'category-header'; h.innerText = text; menuBox.appendChild(h);
@@ -52,7 +52,7 @@ window.onload = function() {
         menuBox.appendChild(btn);
     });
 
-    // Селектор языка
+    // Настройка выбора языка
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
         for (let code in translations) {
@@ -62,13 +62,13 @@ window.onload = function() {
     }
 };
 
-// --- СИСТЕМА ЛОГИРОВАНИЯ (Подготовка к Sheets/Telegram) ---
+// --- СИСТЕМА ЛОГИРОВАНИЯ ---
 function logEvent(type, data) {
+    // В будущем этот fetch будет отправлять данные в Google Sheets
     console.log(`[Analytics] ${type}:`, { uid: userUID, ...data });
-    // Здесь будет fetch запрос к Google Apps Script в будущем
 }
 
-// --- УПРАВЛЕНИЕ ИНТЕРФЕЙСОМ ---
+// --- УПРАВЛЕНИЕ ТЕМОЙ И АВТОМАТИКОЙ ---
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -93,18 +93,19 @@ function toggleAutoMode(val) {
 function getupr(num) {
     const t = translations[currentLang];
     let data;
+    // Логика формирования экзаменов
     if (num === 6) data = generateExam([0,1,2,3,4], t.ui_exam);
     else if (num === 11) data = generateExam([6,7,8,9], t.ui_exam);
     else data = JSON.parse(JSON.stringify(upr[num-1]));
     
-    data.lessonNum = num; // Сохраняем номер урока для умной помощи
+    data.lessonNum = num; // Для умной помощи
     startExercise(data);
 }
 
 function startExercise(data) {
     const header = data.shift();
     const isExam = header.exver.toLowerCase().includes('экзамен');
-    if (!isExam) data.sort(() => Math.random() - 0.5);
+    if (!isExam) data.sort(() => Math.random() - 0.5); // Рандом только для уроков
     
     currentLessonData = data; 
     currentStep = 0; 
@@ -118,7 +119,7 @@ function startExercise(data) {
     const footEx = document.getElementById('footer-exercise');
     footEx.classList.remove('d-none'); footEx.classList.add('d-flex');
     
-    // Обновляем кнопку помощи под конкретный урок
+    // Назначение урока кнопке помощи
     document.getElementById('ui-help-btn').onclick = () => showHelp(data.lessonNum);
     
     createSegments(data.length);
@@ -155,7 +156,7 @@ function showStep() {
             if (opt === correct) {
                 updateSegment(currentStep, 'correct');
                 b.className = 'btn btn-success btn-lg py-3 text-white shadow';
-                logEvent('answer_correct', { id: item.id, tags: item.tags });
+                logEvent('answer_correct', { id: item.id, tags: item.tags }); // Сбор по тегам
                 if (autoMode) setTimeout(nextQuestion, 1200); else nextBtn.disabled = false;
             } else {
                 updateSegment(currentStep, 'wrong');
@@ -180,13 +181,12 @@ function showHelp(lessonNum) {
     const m = new bootstrap.Modal(document.getElementById('resultModal'));
     const langTheory = theoryContent[currentLang] || theoryContent['ru'];
     
-    // Ищем теорию для конкретного урока или показываем общую
+    // Выбор теории по ключу урока
     const helpData = (lessonNum && langTheory[`lesson_${lessonNum}`]) ? langTheory[`lesson_${lessonNum}`] : langTheory.general;
     
     document.getElementById('modal-icon').innerHTML = '📖';
     document.getElementById('modal-title').innerText = helpData.title;
     document.getElementById('modal-text').innerHTML = helpData.text;
-    document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
     m.show();
 }
 
@@ -194,23 +194,34 @@ function openFeedbackModal() {
     const m = new bootstrap.Modal(document.getElementById('feedbackModal'));
     const cur = currentLessonData[currentStep] || { ex: "Menu", id: "N/A" };
     
-    // Захватываем ID и теги для точной коррекции в будущем
+    // Захват ID и тегов для отчета
     window.lastErrorMeta = { 
         id: cur.id,
         lesson: document.getElementById('upr-title').innerText, 
         q: cur.ex, 
-        ans: cur.ans?.[0],
         tags: cur.tags 
     };
     m.show();
 }
 
 function sendFeedback() {
-    const body = `REPORT FROM USER: ${userUID}\nQuestion ID: ${window.lastErrorMeta.id}\nTags: ${window.lastErrorMeta.tags}\nUser Comment: ${document.getElementById('feedbackText').value}\n\nContext: ${JSON.stringify(window.lastErrorMeta)}`;
-    window.location.href = `mailto:admin@rki.today?subject=Error Report [${window.lastErrorMeta.id}]&body=${encodeURIComponent(body)}`;
+    const body = `USER ID: ${userUID}\nQuestion ID: ${window.lastErrorMeta.id}\nTags: ${window.lastErrorMeta.tags}\nComment: ${document.getElementById('feedbackText').value}\n\nMeta: ${JSON.stringify(window.lastErrorMeta)}`;
+    window.location.href = `mailto:admin@rki.today?subject=Error [${window.lastErrorMeta.id}]&body=${encodeURIComponent(body)}`;
 }
 
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+// --- ФУНКЦИИ ШЕРИНГА (ПОДЕЛИТЬСЯ) ---
+function openShareModal() {
+    new bootstrap.Modal(document.getElementById('shareModal')).show();
+}
+
+function copyShareLink() {
+    const input = document.getElementById('shareLinkInput');
+    input.select();
+    navigator.clipboard.writeText(input.value);
+    alert("Ссылка скопирована!");
+}
+
+// --- ДОПОЛНИТЕЛЬНЫЕ ИНСТРУМЕНТЫ ---
 function createSegments(total) {
     const container = document.getElementById('segments-container');
     if (container) {
@@ -252,7 +263,6 @@ function showResult(isWin) {
     document.getElementById('modal-icon').innerHTML = isWin ? '🎉' : '❌';
     document.getElementById('modal-title').innerText = isWin ? t.ui_win : t.ui_fail;
     document.getElementById('modal-text').innerText = isWin ? "Вы справились!" : "Нужно еще немного практики.";
-    document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     m.show();
     document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true });
 }
@@ -262,6 +272,5 @@ function showAbout() {
     document.getElementById('modal-icon').innerHTML = '🚀';
     document.getElementById('modal-title').innerText = 'Learn & Go';
     document.getElementById('modal-text').innerHTML = 'Тренажёр по глаголам движения.<br>Академия <b>RKI.Today</b> © 2025';
-    document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
     m.show();
 }

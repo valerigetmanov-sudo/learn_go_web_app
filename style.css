@@ -1,82 +1,175 @@
-/* Переменные */
+/* ==========================================================================
+   1. ПЕРЕМЕННЫЕ ЦВЕТОВ
+   ========================================================================== */
 :root {
     --bg-body: #f0f4f8;
     --bg-card: #ffffff;
     --text-main: #212529;
-    --primary: #457ab1;
+    --text-muted: #6c757d;
+    --nav-bg: #457ab1;
+    --footer-bg: #ffffff;
+    --border-color: #dee2e6;
+    --input-bg: #ffffff; /* Добавлено для селектора */
 }
 
 [data-theme="dark"] {
     --bg-body: #121212;
     --bg-card: #1e1e1e;
-    --text-main: #ced4da;
+    --text-main: #ced4da; /* Мягкий серый */
+    --text-muted: #adb5bd; /* Комфортный серый */
+    --footer-bg: #1e1e1e;
+    --border-color: #3d4246;
+    --input-bg: #2b3035; /* Добавлено для селектора */
 }
 
 body { 
     background-color: var(--bg-body); 
-    color: var(--text-main); 
-    font-family: 'Inter', sans-serif; 
-    padding-bottom: 140px; 
-    transition: 0.3s; 
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, sans-serif; 
+    padding-bottom: 130px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.content-wrapper { max-width: 600px; margin: 0 auto; width: 100%; }
+/* ==========================================================================
+   2. ГЕОМЕТРИЯ ПРИЛОЖЕНИЯ
+   ========================================================================== */
+.content-wrapper { 
+    max-width: 600px !important; 
+    margin: 0 auto !important; 
+    width: 100%; 
+}
 
-/* ПРОГРЕСС-БАР: две строки при необходимости */
-.segments-wrap {
-    display: flex;
-    flex-wrap: wrap; /* Разрешает перенос */
-    gap: 4px;
-    width: 100%;
+.card {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+    border-radius: 20px !important;
+    border: none !important;
+}
+
+/* ==========================================================================
+   3. СЕТКА СЕГМЕНТОВ (30 штук)
+   ========================================================================== */
+.segments-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 6px;
 }
 
 .segment {
-    height: 6px;
-    flex: 0 0 calc(6.66% - 4px); /* Ограничивает ширину для переноса */
-    background: #e9ecef;
+    height: 10px;
+    background-color: var(--border-color);
     border-radius: 2px;
-    transition: 0.3s;
+    transition: all 0.3s ease;
 }
 
-.segment.active { 
-    background: var(--primary); 
-    transform: scaleY(1.5); /* Визуальный акцент */
+.segment.active { background-color: #457ab1 !important; transform: scaleY(1.3); }
+.segment.correct { background-color: #2ecc71 !important; }
+.segment.wrong { background-color: #e74c3c !important; }
+
+/* ==========================================================================
+   4. ТЕКСТЫ И ВИДИМОСТЬ
+   ========================================================================== */
+#question-counter, #ui-back-btn {
+    color: var(--text-muted) !important;
+    font-weight: 600;
 }
 
-.segment.correct { background: #198754; }
-.segment.wrong { background: #dc3545; }
-
-/* Карточка */
-.card { 
-    background-color: var(--bg-card) !important; 
-    border-radius: 20px !important; 
-    border: 1px solid rgba(0,0,0,0.1) !important; 
+#upr-title {
+    color: var(--text-main) !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
-#upr-text { font-size: 1.5rem; font-weight: 700; color: var(--text-main) !important; }
+#upr-text { 
+    font-size: 1.5rem; 
+    font-weight: 700; 
+    color: var(--text-main) !important; 
+}
 
+.category-header {
+    color: var(--text-muted) !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    margin-top: 1.5rem;
+}
+
+/* СКРЫТОЕ СЛОВО */
 .gap-line { 
     border-bottom: 3px solid var(--primary); 
     min-width: 80px; 
     display: inline-block; 
     color: transparent !important; 
+    transition: color 0.3s ease;
 }
 
-.gap-line.revealed { 
-    color: #198754 !important; 
-    border-bottom-color: transparent; 
-    font-weight: 800; 
+.gap-line.revealed { color: #2ecc71 !important; border-bottom-color: transparent; }
+
+/* ==========================================================================
+   5. КНОПКИ И ИНТЕРФЕЙС
+   ========================================================================== */
+
+/* Теория */
+.btn-theory { 
+    background-color: transparent !important; 
+    color: var(--nav-bg) !important; 
+    border: 3px solid var(--nav-bg) !important; 
+    border-radius: 18px !important;
+    font-weight: 800 !important;
+}
+[data-theme="dark"] .btn-theory { border-color: #64b5f6 !important; color: #64b5f6 !important; }
+
+/* Обычные уроки */
+.btn-primary.d-flex { 
+    background-color: #457ab1; 
+    border: none; 
+    border-radius: 18px; 
+    padding: 15px !important; 
+}
+.lesson-title { color: #ffffff !important; }
+
+/* КНОПКИ ЭКЗАМЕНОВ (были потеряны) */
+.btn-exam-custom {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-main) !important;
+    border: 3px solid var(--text-main) !important;
+    border-radius: 18px !important;
+    font-weight: 800 !important;
+    padding: 16px !important;
 }
 
-.btn { border-radius: 18px; font-weight: 700; padding: 12px; }
-.btn-primary { background-color: var(--primary); border: none; }
+/* Кнопка GO */
+.btn-go { 
+    background-color: #457ab1; 
+    color: #fff; 
+    font-weight: 900; 
+    border-radius: 14px; 
+    border: none; 
+    padding: 10px 25px; 
+}
 
-/* Футер */
-footer { background-color: var(--bg-card); z-index: 1050; }
-.life-icon { width: 22px; height: 22px; }
+/* ==========================================================================
+   6. ЖИЗНИ, НАВБАР И ФУТЕР
+   ========================================================================== */
+.life-icon { width: 22px; height: 22px; margin-left: 2px; transition: opacity 0.3s; }
 .life-lost { opacity: 0.1; filter: grayscale(1); }
 
-.card-footer-actions {
-    border-top: 1px solid rgba(0,0,0,0.05);
-    padding-top: 10px;
+/* Шапка (была потеряна) */
+.navbar { background-color: var(--nav-bg) !important; }
+.navbar-brand { color: #fff !important; }
+
+/* Футер и Селектор языков (были потеряны) */
+.app-footer { background-color: var(--footer-bg); z-index: 1050; }
+
+#langSelect {
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    border-color: var(--border-color);
+}
+
+footer a {
+    color: var(--text-muted) !important;
+    text-decoration: none;
 }

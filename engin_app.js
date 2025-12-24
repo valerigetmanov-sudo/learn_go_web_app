@@ -1,4 +1,6 @@
-/* LEARN & GO - ENGINE */
+/* ==========================================================================
+   LEARN & GO - ENGINE
+   ========================================================================== */
 let currentLang = localStorage.getItem('userLang') || 'ru';
 let autoMode = localStorage.getItem('autoMode') !== 'false';
 let currentLessonData = [], currentStep = 0, lives = 5;
@@ -11,163 +13,209 @@ window.onload = function() {
     const menuBox = document.getElementById('menu-buttons');
     if (!menuBox) return;
 
-    // Локализация кнопок
+    // Локализация интерфейса
     document.getElementById('next-btn').innerText = t.ui_go;
     document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     document.getElementById('ui-back-btn').innerText = t.ui_back;
+    document.getElementById('ui-feed-title').innerText = t.ui_feed_t;
+    document.getElementById('ui-feed-send').innerText = t.ui_feed_s;
+
+    // Синхронизация лейблов "Авто"
     document.querySelectorAll('.ui-auto-label').forEach(el => el.innerText = t.ui_auto);
 
-    // Кнопка Теории
-    const thBtn = document.createElement('button');
-    thBtn.className = 'btn btn-outline-primary btn-lg mb-4 w-100 fw-bold';
-    thBtn.innerHTML = `📖 ${t.ui_theory}`;
-    thBtn.onclick = () => showHelp(null);
-    menuBox.appendChild(thBtn);
+    // Кнопка Теория (Всегда первая)
+    const theoryBtn = document.createElement('button');
+    theoryBtn.className = 'btn btn-theory btn-lg mb-4 py-3 w-100 shadow-sm';
+    theoryBtn.innerHTML = `📖 ${t.ui_theory}`;
+    theoryBtn.onclick = showHelp;
+    menuBox.appendChild(theoryBtn);
 
-    // Отрисовка уроков
-    const createH = (txt) => { 
-        const d = document.createElement('div'); 
-        d.className = 'category-header text-muted small fw-bold mt-3 mb-2'; 
-        d.innerText = txt; 
-        menuBox.appendChild(d); 
+    // Уроки
+    const createHeader = (text) => {
+        const h = document.createElement('div');
+        h.className = 'category-header'; h.innerText = text; menuBox.appendChild(h);
     };
 
-    upr.forEach((it, idx) => {
-        const n = idx + 1;
-        if (n === 1) createH(t.ui_base);
-        if (n === 7) createH(t.ui_pref);
-        const b = document.createElement('button');
-        const tit = it[0].exver;
-        const isEx = tit.toLowerCase().includes('экзамен');
-        b.className = isEx ? 'btn btn-dark w-100 mb-2' : 'btn btn-primary text-white w-100 mb-2';
-        b.innerHTML = isEx ? `🏆 ${tit}` : `<span class="opacity-50 me-2">${n}.</span> ${tit}`;
-        b.onclick = () => getupr(n);
-        menuBox.appendChild(b);
+    upr.forEach((item, index) => {
+        const num = index + 1;
+        if (num === 1) createHeader(t.ui_base);
+        if (num === 7) createHeader(t.ui_pref);
+        const btn = document.createElement('button');
+        const title = item[0].exver;
+        const isExam = title.toLowerCase().includes('экзамен');
+
+        // ИСПРАВЛЕНИЕ: Используем кастомный класс для экзаменов
+        btn.className = isExam ? 'btn btn-exam-custom btn-lg mt-2 mb-3 py-3 w-100 shadow-sm' 
+                               : 'btn btn-primary btn-lg mb-2 w-100 d-flex align-items-center shadow-sm text-white border-0';
+        btn.innerHTML = isExam ? `🏆 ${title}` : `<span class="lesson-num me-2">${num}.</span> <span class="lesson-title text-start">${title}</span>`;
+        btn.onclick = () => getupr(num);
+        menuBox.appendChild(btn);
     });
 
-    // Языковой селектор
-    const lSel = document.getElementById('langSelect');
-    if (lSel) for (let c in translations) { 
-        const o = document.createElement('option'); 
-        o.value = c; o.innerText = translations[c].name; 
-        o.selected = (c === currentLang); lSel.appendChild(o); 
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        for (let code in translations) {
+            const opt = document.createElement('option'); opt.value = code; opt.innerText = translations[code].name;
+            opt.selected = (code === currentLang); langSelect.appendChild(opt);
+        }
     }
 };
 
-function getupr(n) {
-    const t = translations[currentLang];
-    let d = (n === 6) ? generateExam([0,1,2,3,4], t.ui_exam) : (n === 11) ? generateExam([6,7,8,9], t.ui_exam) : JSON.parse(JSON.stringify(upr[n-1]));
-    d.lessonNum = n; 
-    startExercise(d);
+// --- СИСТЕМА ПРОГРЕССА ---
+function createSegments(total) {
+    const container = document.getElementById('segments-container');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'segment'; seg.id = `seg-${i}`;
+        container.appendChild(seg);
+    }
+}
+function updateSegment(index, status) {
+    const seg = document.getElementById(`seg-${index}`);
+    if (seg) { seg.classList.remove('active', 'correct', 'wrong'); if (status) seg.classList.add(status); }
 }
 
-function startExercise(d) {
-    const h = d.shift();
-    const isEx = h.exver.toLowerCase().includes('экзамен');
-    if (!isEx) d.sort(() => Math.random() - 0.5);
-    currentLessonData = d; currentStep = 0; lives = 5;
-    
+// --- УПРАВЛЕНИЕ ---
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+function toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcon(next);
+}
+function updateThemeIcon(theme) {
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.innerText = theme === 'dark' ? '☀️' : '🌙');
+}
+function toggleAutoMode(val) {
+    autoMode = val; localStorage.setItem('autoMode', val);
+    document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = val);
+}
+
+// --- ИГРОВОЙ ЦИКЛ ---
+function getupr(num) {
+    const t = translations[currentLang];
+    let data = (num === 6) ? generateExam([0,1,2,3,4], t.ui_exam) : 
+               (num === 11) ? generateExam([6,7,8,9], t.ui_exam) : JSON.parse(JSON.stringify(upr[num-1]));
+    startExercise(data);
+}
+
+function generateExam(ids, title) {
+    let pool = []; ids.forEach(i => { if (upr[i]) pool = pool.concat(upr[i].slice(1)); });
+    pool.sort(() => Math.random() - 0.5);
+    return [{ exver: title }, ...pool.slice(0, 25)];
+}
+
+function startExercise(data) {
+    const header = data.shift();
+    if (!header.exver.toLowerCase().includes('экзамен')) data.sort(() => Math.random() - 0.5);
+    currentLessonData = data; currentStep = 0; lives = 5;
     document.getElementById('main-menu').classList.add('d-none');
     document.getElementById('exercise-area').classList.remove('d-none');
-    document.getElementById('upr-title').innerText = h.exver;
+    document.getElementById('upr-title').innerText = header.exver;
     document.getElementById('footer-main').classList.add('d-none');
-    document.getElementById('footer-exercise').classList.replace('d-none', 'd-flex');
-    
-    document.getElementById('ui-help-btn').onclick = () => showHelp(d.lessonNum);
-    createSegments(d.length);
-    if (isEx) { 
-        document.getElementById('lives-counter').classList.remove('d-none'); 
-        updateLivesUI(); 
-    }
+    const footEx = document.getElementById('footer-exercise');
+    footEx.classList.remove('d-none'); footEx.classList.add('d-flex');
+    createSegments(data.length);
+    if (header.exver.toLowerCase().includes('экзамен')) {
+        document.getElementById('lives-counter').classList.remove('d-none'); updateLivesUI();
+    } else { document.getElementById('lives-counter').classList.add('d-none'); }
     showStep();
 }
 
 function showStep() {
     if (currentStep >= currentLessonData.length) { showResult(true); return; }
-    const it = currentLessonData[currentStep];
-    const ok = it.ans[0];
+    const item = currentLessonData[currentStep];
+    const correct = item.ans[0];
+    const nextBtn = document.getElementById('next-btn'); nextBtn.disabled = true;
     updateSegment(currentStep, 'active');
-    
-    document.getElementById('upr-text').innerHTML = it.ex.replace(/_+/g, `<span class="gap-line" id="current-gap">${ok}</span>`);
+    const gapHtml = `<span class="gap-line" id="current-gap">${correct}</span>`;
+    document.getElementById('upr-text').innerHTML = item.ex.replace(/_+/g, gapHtml);
     document.getElementById('question-counter').innerText = `${translations[currentLang].ui_q} ${currentStep + 1}/${currentLessonData.length}`;
-    
-    const box = document.getElementById('upr-buttons'); box.innerHTML = '';
-    [...it.ans].sort(() => Math.random() - 0.5).forEach(o => {
-        const b = document.createElement('button'); b.className = 'btn btn-outline-primary py-3 fw-bold'; b.innerText = o;
+    const btnBox = document.getElementById('upr-buttons'); btnBox.innerHTML = '';
+    [...item.ans].sort(() => Math.random() - 0.5).forEach(opt => {
+        const b = document.createElement('button'); b.className = 'btn btn-outline-primary btn-lg py-3 fw-bold';
+        b.innerText = opt;
         b.onclick = () => {
             document.querySelectorAll('#upr-buttons button').forEach(e => e.disabled = true);
             document.getElementById('current-gap').classList.add('revealed');
-            if (o === ok) {
-                updateSegment(currentStep, 'correct'); b.className = 'btn btn-success text-white';
-                if (autoMode) setTimeout(nextQuestion, 1200); else document.getElementById('next-btn').disabled = false;
+            if (opt === correct) {
+                updateSegment(currentStep, 'correct');
+                b.className = 'btn btn-success btn-lg py-3 text-white shadow';
+                if (autoMode) setTimeout(nextQuestion, 1200); else nextBtn.disabled = false;
             } else {
-                updateSegment(currentStep, 'wrong'); b.className = 'btn btn-danger text-white';
-                if (!document.getElementById('lives-counter').classList.contains('d-none')) { 
-                    lives--; updateLivesUI(); if (lives <= 0) setTimeout(() => showResult(false), 600); 
+                updateSegment(currentStep, 'wrong');
+                b.className = 'btn btn-danger btn-lg py-3 text-white shadow';
+                document.querySelectorAll('#upr-buttons button').forEach(el => {
+                    if (el.innerText === correct) el.className = 'btn btn-success btn-lg py-3 text-white opacity-75';
+                });
+                // ИСПРАВЛЕНО: Авто-переход при ошибке
+                if (autoMode) setTimeout(nextQuestion, 2000); else nextBtn.disabled = false;
+                if (!document.getElementById('lives-counter').classList.contains('d-none')) {
+                    lives--; updateLivesUI(); if (lives <= 0) setTimeout(() => showResult(false), 600);
                 }
-                if (autoMode) setTimeout(nextQuestion, 2000); else document.getElementById('next-btn').disabled = false;
             }
         };
         box.appendChild(b);
     });
 }
 
-// Служебные функции
-function initTheme() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); }
-function toggleTheme() { 
-    const n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
-    document.documentElement.setAttribute('data-theme', n); localStorage.setItem('theme', n); 
+function updateLivesUI() {
+    const container = document.getElementById('lives-counter');
+    container.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+        const img = document.createElement('img'); img.src = 'images/logo_hum.png';
+        img.className = i < lives ? 'life-icon' : 'life-icon life-lost';
+        container.appendChild(img);
+    }
 }
-function toggleAutoMode(v) { autoMode = v; localStorage.setItem('autoMode', v); }
-function createSegments(t) { 
-    const c = document.getElementById('segments-container'); c.innerHTML = ''; 
-    for (let i = 0; i < t; i++) { 
-        const s = document.createElement('div'); s.className = 'segment'; s.id = `seg-${i}`; c.appendChild(s); 
-    } 
-}
-function updateSegment(i, s) { const e = document.getElementById(`seg-${i}`); if (e) e.classList.add(s); }
-function updateLivesUI() { 
-    const c = document.getElementById('lives-counter'); c.innerHTML = ''; 
-    for (let i = 0; i < 5; i++) { 
-        const img = document.createElement('img'); img.src = 'images/logo_hum.png'; 
-        img.className = i < lives ? 'life-icon' : 'life-icon life-lost'; c.appendChild(img); 
-    } 
-}
+
 function nextQuestion() { currentStep++; showStep(); }
 function changeLang(l) { localStorage.setItem('userLang', l); location.reload(); }
-function generateExam(ids, tit) { 
-    let p = []; ids.forEach(i => p = p.concat(upr[i].slice(1))); 
-    p.sort(() => Math.random() - 0.5); return [{ exver: tit }, ...p.slice(0, 25)]; 
+function generateExam(ids, title) {
+    let pool = []; ids.forEach(i => { if (upr[i]) pool = pool.concat(upr[i].slice(1)); });
+    pool.sort(() => Math.random() - 0.5); return [{ exver: title }, ...pool.slice(0, 25)];
 }
-function showHelp(n) { 
-    const m = new bootstrap.Modal(document.getElementById('resultModal')); 
-    const th = theoryContent[currentLang] || theoryContent['ru']; 
-    const d = (n && th[`lesson_${n}`]) ? th[`lesson_${n}`] : th.general; 
-    document.getElementById('modal-icon').innerHTML = '📖'; 
-    document.getElementById('modal-title').innerText = d.title; 
-    document.getElementById('modal-text').innerHTML = d.text; m.show(); 
+function showHelp() {
+    const m = new bootstrap.Modal(document.getElementById('resultModal'));
+    const theory = theoryContent[currentLang] || theoryContent['ru'];
+    document.getElementById('modal-icon').innerHTML = '📖';
+    document.getElementById('modal-title').innerText = theory.title;
+    document.getElementById('modal-text').innerHTML = theory.text;
+    document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
+    m.show();
 }
-function openFeedbackModal() { 
-    const m = new bootstrap.Modal(document.getElementById('feedbackModal')); 
-    window.lastErrorMeta = { id: currentLessonData[currentStep].id, tags: currentLessonData[currentStep].tags }; 
-    m.show(); 
+function openFeedbackModal() {
+    const m = new bootstrap.Modal(document.getElementById('feedbackModal'));
+    const cur = currentLessonData[currentStep] || { ex: "Menu" };
+    window.lastErrorMeta = { lesson: document.getElementById('upr-title').innerText, q: cur.ex, ans: cur.ans?.[0] };
+    m.show();
 }
-function sendFeedback() { 
-    const b = `User: ${userUID}\nID: ${window.lastErrorMeta.id}\nTags: ${window.lastErrorMeta.tags}\nMsg: ${document.getElementById('feedbackText').value}`; 
-    window.location.href = `mailto:admin@rki.today?subject=Error&body=${encodeURIComponent(b)}`; 
+function sendFeedback() {
+    const body = `Error: ${document.getElementById('feedbackText').value}\nContext: ${JSON.stringify(window.lastErrorMeta)}`;
+    window.location.href = `mailto:admin@rki.today?subject=Report&body=${encodeURIComponent(body)}`;
 }
-function openShareModal() { new bootstrap.Modal(document.getElementById('shareModal')).show(); }
-function copyShareLink() { navigator.clipboard.writeText(document.getElementById('shareLinkInput').value); alert("Copied!"); }
-function showResult(win) { 
-    const m = new bootstrap.Modal(document.getElementById('resultModal')); const t = translations[currentLang]; 
-    document.getElementById('modal-icon').innerHTML = win ? '🎉' : '❌'; 
-    document.getElementById('modal-title').innerText = win ? t.ui_win : t.ui_fail; 
-    document.getElementById('modal-text').innerText = win ? "Победа!" : "Попробуйте еще раз."; 
-    m.show(); document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true }); 
+function showResult(isWin) {
+    const m = new bootstrap.Modal(document.getElementById('resultModal'));
+    const t = translations[currentLang];
+    document.getElementById('modal-icon').innerHTML = isWin ? '🎉' : '❌';
+    document.getElementById('modal-title').innerText = isWin ? t.ui_win : t.ui_fail;
+    document.getElementById('modal-text').innerText = isWin ? "Вы справились!" : "Нужно еще немного практики.";
+    document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
+    m.show();
+    document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true });
 }
-function showAbout() { 
-    const m = new bootstrap.Modal(document.getElementById('resultModal')); 
-    document.getElementById('modal-icon').innerHTML = '🚀'; 
-    document.getElementById('modal-title').innerText = 'Learn & Go'; 
-    document.getElementById('modal-text').innerHTML = 'RKI Trainer © 2025'; m.show(); 
-}
+function showAbout() {
+    const m = new bootstrap.Modal(document.getElementById('resultModal'));
+    document.getElementById('modal-icon').innerHTML = '🚀';
+    document.getElementById('modal-title').innerText = 'Learn & Go';
+    document.getElementById('modal-text').innerHTML = 'Тренажёр по глаголам движения.<br>Академия <b>RKI.Today</b> © 2025';
+    document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
+    m.show();
+}hhh

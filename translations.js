@@ -1,40 +1,40 @@
-/**
- * Learn & Go - Словари интерфейса (Объединенный)
- * Файл: translations.js
- */
 const translations = {
-    ru: { 
-        name: "Русский", 
-        ui_go: "Go",                
-        ui_modal_ok: "ПОЕХАЛИ!",      
-        ui_back: "← Меню",           
-        ui_auto: "Авто",             
-        ui_q: "Вопрос",              
-        ui_win: "Победа!",            
-        ui_fail: "Провал",            
-        ui_theory: "Теория",          
-        ui_exam: "Экзамен",          
-        ui_base: "База",             
-        ui_pref: "Приставки",        
-        ui_feed_t: "Отчет об ошибке", 
-        ui_feed_s: "ОТПРАВИТЬ",       
-        ui_share: "Поделиться"        
+    ru: {
+        name: "Русский",
+        ui_theory: "Теория",
+        ui_base: "Базовые глаголы",
+        ui_pref: "Глаголы с приставками",
+        ui_exam: "Экзамен",
+        ui_go: "Go",
+        ui_back: "← Меню",
+        ui_auto: "Авто",
+        ui_q: "Вопрос",
+        ui_win: "Победа!",
+        ui_win_desc: "Вы справились! Все упражнения выполнены.",
+        ui_fail: "Попробуйте ещё раз",
+        ui_fail_desc: "Нужно еще немного практики.",
+        ui_modal_ok: "В меню",
+        ui_feed_t: "Сообщить об ошибке",
+        ui_feed_s: "Отправить",
+        ui_exam_win_desc: "Вы успешно сдали экзамен! Теперь вы мастер глаголов движения."
     },
-    en: { 
-        name: "English", 
-        ui_go: "Go", 
-        ui_modal_ok: "GOT IT", 
-        ui_back: "← Menu", 
-        ui_auto: "Auto", 
-        ui_q: "Question", 
-        ui_win: "Victory!", 
-        ui_fail: "Failed", 
-        ui_theory: "Theory", 
-        ui_exam: "Exam", 
-        ui_base: "Base", 
-        ui_pref: "Prefixes", 
-        ui_feed_t: "Error Report", 
-        ui_feed_s: "SEND",
-        ui_share: "Share"
+    en: {
+        name: "English",
+        ui_theory: "Theory",
+        ui_base: "Basic Verbs",
+        ui_pref: "Verbs with Prefixes",
+        ui_exam: "Exam",
+        ui_go: "Next",
+        ui_back: "← Menu",
+        ui_auto: "Auto",
+        ui_q: "Question",
+        ui_win: "Success!",
+        ui_win_desc: "Well done! All exercises are completed.",
+        ui_fail: "Try again",
+        ui_fail_desc: "You need a bit more practice.",
+        ui_modal_ok: "To Menu",
+        ui_feed_t: "Report an error",
+        ui_feed_s: "Send",
+        ui_exam_win_desc: "You passed the exam! Now you are a master of motion verbs."
     }
 };

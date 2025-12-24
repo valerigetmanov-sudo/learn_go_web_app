@@ -3,128 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Learn & Go - РКИ Тренажёр</title>
+    <title>Learn & Go - Тренажёр по РКИ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="app-container">
-    <div id="main-menu" class="container py-4">
-        <div class="text-center mb-4">
-            <img src="images/logo_hum.png" alt="Logo" class="main-logo mb-2">
-            <h1 class="fw-800">Learn & Go</h1>
-            <p class="text-muted small">Глаголы движения • RKI.Today</p>
-        </div>
+<div class="app-container content-wrapper">
+    <header class="text-center py-3">
+        <img src="images/logo_hum.png" alt="Logo" class="main-logo mb-1" width="60">
+        <h1 class="fw-800 h4 mb-0">Learn & Go</h1>
+        <p class="text-muted small mb-0">RKI.Today</p>
+    </header>
 
-        <div id="menu-buttons" class="d-grid gap-2">
-            </div>
-        
+    <div id="main-menu" class="container">
+        <div id="menu-buttons" class="d-grid gap-2 mt-3"></div>
         <div class="text-center mt-4">
             <a href="#" class="text-decoration-none text-muted small" onclick="showAbout()">О проекте</a>
         </div>
     </div>
 
-    <div id="exercise-area" class="container py-3 d-none">
-        <div class="exercise-card shadow-sm position-relative">
-            <div id="segments-container" class="d-flex mb-3"></div>
+    <div id="exercise-area" class="container d-none">
+        <div class="exercise-card card shadow-sm p-4">
+            <div id="segments-container" class="segments-wrap mb-3"></div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <span id="question-counter" class="badge rounded-pill bg-secondary-subtle text-secondary">Вопрос 1/20</span>
+                <span id="question-counter" class="badge rounded-pill bg-light text-dark"></span>
                 <div id="lives-counter" class="d-flex gap-1 d-none"></div>
             </div>
 
-            <h2 id="upr-title" class="h5 fw-bold mb-4 text-center text-primary">Урок 1</h2>
-            
-            <div id="upr-text" class="exercise-text mb-4 text-center">
-                </div>
+            <h2 id="upr-title" class="h6 fw-bold mb-4 text-center text-primary text-uppercase"></h2>
+            <div id="upr-text" class="exercise-text mb-4 text-center fs-4 fw-bold"></div>
+            <div id="upr-buttons" class="d-grid gap-3 mb-4"></div>
 
-            <div id="upr-buttons" class="d-grid gap-3 mb-4">
-                </div>
-
-            <div class="card-footer-actions d-flex justify-content-between align-items-center mt-2">
-                <button class="btn btn-link p-0 text-decoration-none opacity-50" onclick="openFeedbackModal()" title="Сообщить об ошибке">📣</button>
-                <a href="#" id="ui-back-btn" class="text-decoration-none text-muted small" onclick="location.reload()">Назад</a>
+            <div class="card-footer-actions d-flex justify-content-between border-top pt-3">
+                <button class="btn btn-link p-0 opacity-50 fs-4" onclick="openFeedbackModal()">📣</button>
+                <a href="#" id="ui-back-btn" class="text-muted small fw-bold" onclick="location.reload()">Назад</a>
             </div>
         </div>
     </div>
 
-    <footer class="fixed-bottom py-3 border-top shadow-lg">
+    <footer class="fixed-bottom py-3 border-top bg-body shadow-lg">
         <div id="footer-main" class="container d-flex justify-content-around align-items-center">
-            <button class="btn btn-ui theme-toggle-btn" onclick="toggleTheme()">🌙</button>
-            <div class="lang-selector">
-                <select id="langSelect" class="form-select form-select-sm border-0" onchange="changeLang(this.value)"></select>
-            </div>
-            <button class="btn btn-ui" onclick="openShareModal()">🔗</button>
+            <button class="btn fs-4" onclick="toggleTheme()">🌙</button>
+            <select id="langSelect" class="form-select border-0 fw-bold w-auto" onchange="changeLang(this.value)"></select>
+            <button class="btn fs-4" onclick="openShareModal()">🔗</button>
         </div>
-
         <div id="footer-exercise" class="container d-none justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">
-                <button id="ui-help-btn" class="btn btn-ui-circle" title="Помощь">📖</button>
-                <div class="form-check form-switch m-0 p-0 d-flex align-items-center gap-2">
-                    <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
-                    <label class="ui-auto-label small text-muted">Авто</label>
-                </div>
+                <button id="ui-help-btn" class="btn fs-4">📖</button>
+                <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" onchange="toggleAutoMode(this.checked)"><label class="ui-auto-label small text-muted ms-2"></label></div>
             </div>
-            <button id="next-btn" class="btn btn-primary px-4 rounded-pill fw-bold" onclick="nextQuestion()" disabled>ГО</button>
+            <button id="next-btn" class="btn btn-primary px-4 rounded-pill fw-bold" onclick="nextQuestion()" disabled></button>
         </div>
     </footer>
 </div>
 
-<div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-body text-center p-5">
-                <div id="modal-icon" class="display-1 mb-3">🎉</div>
-                <h3 id="modal-title" class="fw-bold mb-3">Заголовок</h3>
-                <div id="modal-text" class="text-muted mb-4">Описание сообщения...</div>
-                <button id="ui-modal-close" class="btn btn-primary btn-lg w-100 rounded-pill" data-bs-dismiss="modal">ОК</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">📣 Сообщить об ошибке</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <textarea id="feedbackText" class="form-control mb-3" rows="3" placeholder="Что не так в этом вопросе?"></textarea>
-                <button class="btn btn-primary w-100" onclick="sendFeedback()">Отправить отчет</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-body text-center p-4">
-                <h4 class="fw-bold mb-4">Поделиться тренажёром</h4>
-                <div class="input-group mb-4 shadow-sm">
-                    <input type="text" id="shareLinkInput" class="form-control border-0" value="https://learn.rki.today" readonly>
-                    <button class="btn btn-primary" onclick="copyShareLink()">📋</button>
-                </div>
-                <div class="qr-container mb-3">
-                    <img src="images/qr-code.png" alt="QR Code" class="img-fluid rounded border p-2" style="max-width: 200px;">
-                </div>
-                <p class="text-muted small">Сканируйте QR-код, чтобы открыть на другом устройстве</p>
-                <button class="btn btn-outline-secondary w-100 rounded-pill mt-3" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content text-center p-5"><div id="modal-icon" class="display-1 mb-3"></div><h3 id="modal-title" class="fw-bold mb-3"></h3><div id="modal-text" class="text-muted mb-4"></div><button id="ui-modal-close" class="btn btn-primary w-100 rounded-pill" data-bs-dismiss="modal"></button></div></div></div>
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header border-0"><h5 class="modal-title fw-bold">📣 Ошибка</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><textarea id="feedbackText" class="form-control mb-3" rows="3"></textarea><button class="btn btn-primary w-100 rounded-pill" onclick="sendFeedback()">ОТПРАВИТЬ</button></div></div></div></div>
+<div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content p-4 text-center"><h4 class="fw-bold mb-4">Share</h4><div class="input-group mb-3"><input type="text" id="shareLinkInput" class="form-control" readonly><button class="btn btn-primary" onclick="copyShareLink()">📋</button></div><div class="qr-container p-2 mb-3 border d-inline-block"><img src="images/qr-code.png" width="150"></div><button class="btn btn-outline-secondary w-100 rounded-pill" data-bs-dismiss="modal">Close</button></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="translations.js"></script>
-<script src="data_theory.js"></script>
-<script src="data_verbs.js"></script>
-<script src="data_prefixes.js"></script>
-<script src="engin_app.js"></script>
-
+<script src="translations.js"></script><script src="data_theory.js"></script><script src="data_verbs.js"></script><script src="data_prefixes.js"></script><script src="engin_app.js"></script>
 </body>
 </html>

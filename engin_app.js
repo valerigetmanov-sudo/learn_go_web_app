@@ -1,13 +1,7 @@
-/* ==========================================================================
-   LEARN & GO - ENGINE (Full Version 2025)
-   ========================================================================== */
+/* LEARN & GO - ENGINE */
 let currentLang = localStorage.getItem('userLang') || 'ru';
 let autoMode = localStorage.getItem('autoMode') !== 'false';
-let currentLessonData = [];
-let currentStep = 0;
-let lives = 5;
-
-// Анонимный ID пользователя для статистики
+let currentLessonData = [], currentStep = 0, lives = 5;
 let userUID = localStorage.getItem('userUID') || 'uid_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('userUID', userUID);
 
@@ -17,260 +11,163 @@ window.onload = function() {
     const menuBox = document.getElementById('menu-buttons');
     if (!menuBox) return;
 
-    // Локализация интерфейса
+    // Локализация кнопок
     document.getElementById('next-btn').innerText = t.ui_go;
     document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     document.getElementById('ui-back-btn').innerText = t.ui_back;
     document.querySelectorAll('.ui-auto-label').forEach(el => el.innerText = t.ui_auto);
-    document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = autoMode);
 
-    // Кнопка Теория (Общая в меню)
-    const theoryBtn = document.createElement('button');
-    theoryBtn.className = 'btn btn-theory btn-lg mb-4 py-3 w-100 shadow-sm';
-    theoryBtn.innerHTML = `📖 ${t.ui_theory}`;
-    theoryBtn.onclick = () => showHelp(null); 
-    menuBox.appendChild(theoryBtn);
+    // Кнопка Теории
+    const thBtn = document.createElement('button');
+    thBtn.className = 'btn btn-outline-primary btn-lg mb-4 w-100 fw-bold';
+    thBtn.innerHTML = `📖 ${t.ui_theory}`;
+    thBtn.onclick = () => showHelp(null);
+    menuBox.appendChild(thBtn);
 
-    // Генерация списка уроков
-    const createHeader = (text) => {
-        const h = document.createElement('div');
-        h.className = 'category-header'; h.innerText = text; menuBox.appendChild(h);
+    // Отрисовка уроков
+    const createH = (txt) => { 
+        const d = document.createElement('div'); 
+        d.className = 'category-header text-muted small fw-bold mt-3 mb-2'; 
+        d.innerText = txt; 
+        menuBox.appendChild(d); 
     };
 
-    upr.forEach((item, index) => {
-        const num = index + 1;
-        if (num === 1) createHeader(t.ui_base);
-        if (num === 7) createHeader(t.ui_pref);
-        const btn = document.createElement('button');
-        const title = item[0].exver;
-        const isExam = title.toLowerCase().includes('экзамен');
-
-        btn.className = isExam ? 'btn btn-exam-custom btn-lg mt-2 mb-3 py-3 w-100 shadow-sm' 
-                               : 'btn btn-primary btn-lg mb-2 w-100 d-flex align-items-center shadow-sm text-white border-0';
-        btn.innerHTML = isExam ? `🏆 ${title}` : `<span class="lesson-num me-2">${num}.</span> <span class="lesson-title text-start">${title}</span>`;
-        btn.onclick = () => getupr(num);
-        menuBox.appendChild(btn);
+    upr.forEach((it, idx) => {
+        const n = idx + 1;
+        if (n === 1) createH(t.ui_base);
+        if (n === 7) createH(t.ui_pref);
+        const b = document.createElement('button');
+        const tit = it[0].exver;
+        const isEx = tit.toLowerCase().includes('экзамен');
+        b.className = isEx ? 'btn btn-dark w-100 mb-2' : 'btn btn-primary text-white w-100 mb-2';
+        b.innerHTML = isEx ? `🏆 ${tit}` : `<span class="opacity-50 me-2">${n}.</span> ${tit}`;
+        b.onclick = () => getupr(n);
+        menuBox.appendChild(b);
     });
 
-    // Настройка выбора языка
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        for (let code in translations) {
-            const opt = document.createElement('option'); opt.value = code; opt.innerText = translations[code].name;
-            opt.selected = (code === currentLang); langSelect.appendChild(opt);
-        }
+    // Языковой селектор
+    const lSel = document.getElementById('langSelect');
+    if (lSel) for (let c in translations) { 
+        const o = document.createElement('option'); 
+        o.value = c; o.innerText = translations[c].name; 
+        o.selected = (c === currentLang); lSel.appendChild(o); 
     }
 };
 
-// --- СИСТЕМА ЛОГИРОВАНИЯ ---
-function logEvent(type, data) {
-    // В будущем этот fetch будет отправлять данные в Google Sheets
-    console.log(`[Analytics] ${type}:`, { uid: userUID, ...data });
-}
-
-// --- УПРАВЛЕНИЕ ТЕМОЙ И АВТОМАТИКОЙ ---
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-}
-function toggleTheme() {
-    const cur = document.documentElement.getAttribute('data-theme');
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-    updateThemeIcon(next);
-}
-function updateThemeIcon(theme) {
-    document.querySelectorAll('.theme-toggle-btn').forEach(btn => btn.innerText = theme === 'dark' ? '☀️' : '🌙');
-}
-function toggleAutoMode(val) {
-    autoMode = val; localStorage.setItem('autoMode', val);
-    document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = val);
-}
-
-// --- ИГРОВОЙ ЦИКЛ ---
-function getupr(num) {
+function getupr(n) {
     const t = translations[currentLang];
-    let data;
-    // Логика формирования экзаменов
-    if (num === 6) data = generateExam([0,1,2,3,4], t.ui_exam);
-    else if (num === 11) data = generateExam([6,7,8,9], t.ui_exam);
-    else data = JSON.parse(JSON.stringify(upr[num-1]));
-    
-    data.lessonNum = num; // Для умной помощи
-    startExercise(data);
+    let d = (n === 6) ? generateExam([0,1,2,3,4], t.ui_exam) : (n === 11) ? generateExam([6,7,8,9], t.ui_exam) : JSON.parse(JSON.stringify(upr[n-1]));
+    d.lessonNum = n; 
+    startExercise(d);
 }
 
-function startExercise(data) {
-    const header = data.shift();
-    const isExam = header.exver.toLowerCase().includes('экзамен');
-    if (!isExam) data.sort(() => Math.random() - 0.5); // Рандом только для уроков
-    
-    currentLessonData = data; 
-    currentStep = 0; 
-    lives = 5;
+function startExercise(d) {
+    const h = d.shift();
+    const isEx = h.exver.toLowerCase().includes('экзамен');
+    if (!isEx) d.sort(() => Math.random() - 0.5);
+    currentLessonData = d; currentStep = 0; lives = 5;
     
     document.getElementById('main-menu').classList.add('d-none');
     document.getElementById('exercise-area').classList.remove('d-none');
-    document.getElementById('upr-title').innerText = header.exver;
+    document.getElementById('upr-title').innerText = h.exver;
     document.getElementById('footer-main').classList.add('d-none');
+    document.getElementById('footer-exercise').classList.replace('d-none', 'd-flex');
     
-    const footEx = document.getElementById('footer-exercise');
-    footEx.classList.remove('d-none'); footEx.classList.add('d-flex');
-    
-    // Назначение урока кнопке помощи
-    document.getElementById('ui-help-btn').onclick = () => showHelp(data.lessonNum);
-    
-    createSegments(data.length);
-    if (isExam) {
+    document.getElementById('ui-help-btn').onclick = () => showHelp(d.lessonNum);
+    createSegments(d.length);
+    if (isEx) { 
         document.getElementById('lives-counter').classList.remove('d-none'); 
-        updateLivesUI();
-    } else { 
-        document.getElementById('lives-counter').classList.add('d-none'); 
+        updateLivesUI(); 
     }
-    
-    logEvent('start_lesson', { title: header.exver });
     showStep();
 }
 
 function showStep() {
     if (currentStep >= currentLessonData.length) { showResult(true); return; }
-    const item = currentLessonData[currentStep];
-    const correct = item.ans[0];
-    const nextBtn = document.getElementById('next-btn'); nextBtn.disabled = true;
-    
+    const it = currentLessonData[currentStep];
+    const ok = it.ans[0];
     updateSegment(currentStep, 'active');
-    const gapHtml = `<span class="gap-line" id="current-gap">${correct}</span>`;
-    document.getElementById('upr-text').innerHTML = item.ex.replace(/_+/g, gapHtml);
+    
+    document.getElementById('upr-text').innerHTML = it.ex.replace(/_+/g, `<span class="gap-line" id="current-gap">${ok}</span>`);
     document.getElementById('question-counter').innerText = `${translations[currentLang].ui_q} ${currentStep + 1}/${currentLessonData.length}`;
     
-    const btnBox = document.getElementById('upr-buttons'); btnBox.innerHTML = '';
-    [...item.ans].sort(() => Math.random() - 0.5).forEach(opt => {
-        const b = document.createElement('button'); b.className = 'btn btn-outline-primary btn-lg py-3 fw-bold';
-        b.innerText = opt;
+    const box = document.getElementById('upr-buttons'); box.innerHTML = '';
+    [...it.ans].sort(() => Math.random() - 0.5).forEach(o => {
+        const b = document.createElement('button'); b.className = 'btn btn-outline-primary py-3 fw-bold'; b.innerText = o;
         b.onclick = () => {
-            document.querySelectorAll('#upr-buttons button').forEach(el => el.disabled = true);
+            document.querySelectorAll('#upr-buttons button').forEach(e => e.disabled = true);
             document.getElementById('current-gap').classList.add('revealed');
-            
-            if (opt === correct) {
-                updateSegment(currentStep, 'correct');
-                b.className = 'btn btn-success btn-lg py-3 text-white shadow';
-                logEvent('answer_correct', { id: item.id, tags: item.tags }); // Сбор по тегам
-                if (autoMode) setTimeout(nextQuestion, 1200); else nextBtn.disabled = false;
+            if (o === ok) {
+                updateSegment(currentStep, 'correct'); b.className = 'btn btn-success text-white';
+                if (autoMode) setTimeout(nextQuestion, 1200); else document.getElementById('next-btn').disabled = false;
             } else {
-                updateSegment(currentStep, 'wrong');
-                b.className = 'btn btn-danger btn-lg py-3 text-white shadow';
-                logEvent('answer_wrong', { id: item.id, tags: item.tags, choice: opt });
-                
-                document.querySelectorAll('#upr-buttons button').forEach(el => {
-                    if (el.innerText === correct) el.className = 'btn btn-success btn-lg py-3 text-white opacity-75';
-                });
-                if (autoMode) setTimeout(nextQuestion, 2000); else nextBtn.disabled = false;
-                if (!document.getElementById('lives-counter').classList.contains('d-none')) {
-                    lives--; updateLivesUI(); if (lives <= 0) setTimeout(() => showResult(false), 600);
+                updateSegment(currentStep, 'wrong'); b.className = 'btn btn-danger text-white';
+                if (!document.getElementById('lives-counter').classList.contains('d-none')) { 
+                    lives--; updateLivesUI(); if (lives <= 0) setTimeout(() => showResult(false), 600); 
                 }
+                if (autoMode) setTimeout(nextQuestion, 2000); else document.getElementById('next-btn').disabled = false;
             }
         };
-        btnBox.appendChild(b);
+        box.appendChild(b);
     });
 }
 
-// --- УМНАЯ ПОМОЩЬ И ФИДБЕК ---
-function showHelp(lessonNum) {
-    const m = new bootstrap.Modal(document.getElementById('resultModal'));
-    const langTheory = theoryContent[currentLang] || theoryContent['ru'];
-    
-    // Выбор теории по ключу урока
-    const helpData = (lessonNum && langTheory[`lesson_${lessonNum}`]) ? langTheory[`lesson_${lessonNum}`] : langTheory.general;
-    
-    document.getElementById('modal-icon').innerHTML = '📖';
-    document.getElementById('modal-title').innerText = helpData.title;
-    document.getElementById('modal-text').innerHTML = helpData.text;
-    m.show();
+// Служебные функции
+function initTheme() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); }
+function toggleTheme() { 
+    const n = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
+    document.documentElement.setAttribute('data-theme', n); localStorage.setItem('theme', n); 
 }
-
-function openFeedbackModal() {
-    const m = new bootstrap.Modal(document.getElementById('feedbackModal'));
-    const cur = currentLessonData[currentStep] || { ex: "Menu", id: "N/A" };
-    
-    // Захват ID и тегов для отчета
-    window.lastErrorMeta = { 
-        id: cur.id,
-        lesson: document.getElementById('upr-title').innerText, 
-        q: cur.ex, 
-        tags: cur.tags 
-    };
-    m.show();
+function toggleAutoMode(v) { autoMode = v; localStorage.setItem('autoMode', v); }
+function createSegments(t) { 
+    const c = document.getElementById('segments-container'); c.innerHTML = ''; 
+    for (let i = 0; i < t; i++) { 
+        const s = document.createElement('div'); s.className = 'segment'; s.id = `seg-${i}`; c.appendChild(s); 
+    } 
 }
-
-function sendFeedback() {
-    const body = `USER ID: ${userUID}\nQuestion ID: ${window.lastErrorMeta.id}\nTags: ${window.lastErrorMeta.tags}\nComment: ${document.getElementById('feedbackText').value}\n\nMeta: ${JSON.stringify(window.lastErrorMeta)}`;
-    window.location.href = `mailto:admin@rki.today?subject=Error [${window.lastErrorMeta.id}]&body=${encodeURIComponent(body)}`;
-}
-
-// --- ФУНКЦИИ ШЕРИНГА (ПОДЕЛИТЬСЯ) ---
-function openShareModal() {
-    new bootstrap.Modal(document.getElementById('shareModal')).show();
-}
-
-function copyShareLink() {
-    const input = document.getElementById('shareLinkInput');
-    input.select();
-    navigator.clipboard.writeText(input.value);
-    alert("Ссылка скопирована!");
-}
-
-// --- ДОПОЛНИТЕЛЬНЫЕ ИНСТРУМЕНТЫ ---
-function createSegments(total) {
-    const container = document.getElementById('segments-container');
-    if (container) {
-        container.innerHTML = '';
-        for (let i = 0; i < total; i++) {
-            const seg = document.createElement('div');
-            seg.className = 'segment'; seg.id = `seg-${i}`;
-            container.appendChild(seg);
-        }
-    }
-}
-function updateSegment(index, status) {
-    const seg = document.getElementById(`seg-${index}`);
-    if (seg) { seg.classList.remove('active', 'correct', 'wrong'); if (status) seg.classList.add(status); }
-}
-function updateLivesUI() {
-    const container = document.getElementById('lives-counter');
-    container.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-        const img = document.createElement('img'); img.src = 'images/logo_hum.png';
-        img.className = i < lives ? 'life-icon' : 'life-icon life-lost';
-        container.appendChild(img);
-    }
+function updateSegment(i, s) { const e = document.getElementById(`seg-${i}`); if (e) e.classList.add(s); }
+function updateLivesUI() { 
+    const c = document.getElementById('lives-counter'); c.innerHTML = ''; 
+    for (let i = 0; i < 5; i++) { 
+        const img = document.createElement('img'); img.src = 'images/logo_hum.png'; 
+        img.className = i < lives ? 'life-icon' : 'life-icon life-lost'; c.appendChild(img); 
+    } 
 }
 function nextQuestion() { currentStep++; showStep(); }
 function changeLang(l) { localStorage.setItem('userLang', l); location.reload(); }
-
-function generateExam(ids, title) {
-    let pool = []; 
-    ids.forEach(i => { if (upr[i]) pool = pool.concat(upr[i].slice(1)); });
-    pool.sort(() => Math.random() - 0.5); 
-    return [{ exver: title }, ...pool.slice(0, 25)];
+function generateExam(ids, tit) { 
+    let p = []; ids.forEach(i => p = p.concat(upr[i].slice(1))); 
+    p.sort(() => Math.random() - 0.5); return [{ exver: tit }, ...p.slice(0, 25)]; 
 }
-
-function showResult(isWin) {
-    logEvent('lesson_finish', { win: isWin, step: currentStep });
-    const m = new bootstrap.Modal(document.getElementById('resultModal'));
-    const t = translations[currentLang];
-    document.getElementById('modal-icon').innerHTML = isWin ? '🎉' : '❌';
-    document.getElementById('modal-title').innerText = isWin ? t.ui_win : t.ui_fail;
-    document.getElementById('modal-text').innerText = isWin ? "Вы справились!" : "Нужно еще немного практики.";
-    m.show();
-    document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true });
+function showHelp(n) { 
+    const m = new bootstrap.Modal(document.getElementById('resultModal')); 
+    const th = theoryContent[currentLang] || theoryContent['ru']; 
+    const d = (n && th[`lesson_${n}`]) ? th[`lesson_${n}`] : th.general; 
+    document.getElementById('modal-icon').innerHTML = '📖'; 
+    document.getElementById('modal-title').innerText = d.title; 
+    document.getElementById('modal-text').innerHTML = d.text; m.show(); 
 }
-
-function showAbout() {
-    const m = new bootstrap.Modal(document.getElementById('resultModal'));
-    document.getElementById('modal-icon').innerHTML = '🚀';
-    document.getElementById('modal-title').innerText = 'Learn & Go';
-    document.getElementById('modal-text').innerHTML = 'Тренажёр по глаголам движения.<br>Академия <b>RKI.Today</b> © 2025';
-    m.show();
+function openFeedbackModal() { 
+    const m = new bootstrap.Modal(document.getElementById('feedbackModal')); 
+    window.lastErrorMeta = { id: currentLessonData[currentStep].id, tags: currentLessonData[currentStep].tags }; 
+    m.show(); 
+}
+function sendFeedback() { 
+    const b = `User: ${userUID}\nID: ${window.lastErrorMeta.id}\nTags: ${window.lastErrorMeta.tags}\nMsg: ${document.getElementById('feedbackText').value}`; 
+    window.location.href = `mailto:admin@rki.today?subject=Error&body=${encodeURIComponent(b)}`; 
+}
+function openShareModal() { new bootstrap.Modal(document.getElementById('shareModal')).show(); }
+function copyShareLink() { navigator.clipboard.writeText(document.getElementById('shareLinkInput').value); alert("Copied!"); }
+function showResult(win) { 
+    const m = new bootstrap.Modal(document.getElementById('resultModal')); const t = translations[currentLang]; 
+    document.getElementById('modal-icon').innerHTML = win ? '🎉' : '❌'; 
+    document.getElementById('modal-title').innerText = win ? t.ui_win : t.ui_fail; 
+    document.getElementById('modal-text').innerText = win ? "Победа!" : "Попробуйте еще раз."; 
+    m.show(); document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true }); 
+}
+function showAbout() { 
+    const m = new bootstrap.Modal(document.getElementById('resultModal')); 
+    document.getElementById('modal-icon').innerHTML = '🚀'; 
+    document.getElementById('modal-title').innerText = 'Learn & Go'; 
+    document.getElementById('modal-text').innerHTML = 'RKI Trainer © 2025'; m.show(); 
 }

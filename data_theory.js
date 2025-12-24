@@ -1,14 +1,15 @@
 /**
- * Learn & Go - Теория на двух языках
+ * Learn & Go - Теория по урокам
  * Файл: data_theory.js
  */
 const theoryContent = {
     ru: { 
-        title: "Грамматика: Основы", 
-        text: "<h5>Грамматика РКИ</h5><p><b>Идти / Ехать:</b> Движение сейчас в одну сторону.</p><p><b>Ходить / Ездить:</b> Регулярно, туда и обратно.</p><p><b>Транспорт:</b> ЕХАТЬ. <b>Пешком:</b> ИДТИ.</p>" 
+        general: { title: "Грамматика: Основы", text: "<p><b>Идти / Ехать:</b> Движение сейчас в одну сторону.</p><p><b>Ходить / Ездить:</b> Регулярно, туда и обратно.</p>" },
+        lesson_1: { title: "Урок 1: Транспорт", text: "<b>ИДТИ</b> — пешком.<br><b>ЕХАТЬ</b> — на транспорте." },
+        lesson_6: { title: "Урок 6: Вход и Выход", text: "<b>В-</b> — движение внутрь.<br><b>ВЫ-</b> — движение изнутри наружу." }
     },
     en: { 
-        title: "Grammar: Basics", 
-        text: "<h5>Russian Grammar</h5><p><b>Idti / Ekhat:</b> Moving now in one direction.</p><p><b>Khodit / Ezdit:</b> Regularly or round trip.</p><p><b>Transport:</b> EKHTAT. <b>On foot:</b> IDTI.</p>" 
+        general: { title: "Grammar: Basics", text: "<p><b>Idti / Ekhat:</b> One way now.</p><p><b>Khodit / Ezdit:</b> Habitual or round trip.</p>" },
+        lesson_1: { title: "Lesson 1: Transport", text: "<b>ИДТИ</b> — on foot.<br><b>ЕХАТЬ</b> — by vehicle." }
     }
 };

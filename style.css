@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. ПЕРЕМЕННЫЕ ЦВЕТОВ (Мягкая калибровка для комфорта глаз)
+   1. ПЕРЕМЕННЫЕ ЦВЕТОВ (Мягкая калибровка)
    ========================================================================== */
 :root {
     --bg-body: #f0f4f8;
@@ -10,10 +10,6 @@
     --footer-bg: #ffffff;
     --border-color: #dee2e6;
     --input-bg: #ffffff;
-    
-    /* Кнопки */
-    --btn-theory-border: #457ab1;
-    --btn-theory-bg: #ffffff;
     --btn-exam-border: #212529;
     --btn-exam-text: #212529;
 }
@@ -21,39 +17,25 @@
 [data-theme="dark"] {
     --bg-body: #121212;
     --bg-card: #1e1e1e;
-    --text-main: #ced4da;    /* Мягкий серый вместо ярко-белого */
-    --text-muted: #adb5bd;  /* Комфортный серый для второстепенного текста */
-    --nav-bg: #457ab1;
+    --text-main: #ced4da;
+    --text-muted: #adb5bd;
     --footer-bg: #1e1e1e;
     --border-color: #3d4246;
     --input-bg: #2b3035;
-    
-    /* Кнопки в тёмной теме */
-    --btn-theory-border: #64b5f6;
-    --btn-theory-bg: #252a2e;
-    --btn-exam-border: #ced4da;
-    --btn-exam-text: #ced4da;
+    --btn-exam-border: #ffffff;
+    --btn-exam-text: #ffffff;
 }
 
-/* ==========================================================================
-   2. ОБЩИЕ СТИЛИ И ФИКС ШИРИНЫ (Конфликт с .container)
-   ========================================================================== */
 body { 
     background-color: var(--bg-body); 
     color: var(--text-main);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
     padding-bottom: 130px;
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Принудительное ограничение ширины 600px для всех экранов */
-.content-wrapper { 
-    max-width: 600px !important; 
-    margin: 0 auto !important; 
-    width: 100%; 
-}
+.content-wrapper { max-width: 600px !important; margin: 0 auto !important; width: 100%; }
 
-/* Исправление фона карточки для тёмной темы */
 .card {
     background-color: var(--bg-card) !important;
     color: var(--text-main) !important;
@@ -62,67 +44,43 @@ body {
 }
 
 /* ==========================================================================
-   3. ВИДИМОСТЬ ТЕКСТА (Переопределение Bootstrap-классов)
+   2. СЕТКА СЕГМЕНТОВ (30 штук)
    ========================================================================== */
-
-/* Исправляем Вопрос 1/30 и текст "Назад" (конфликт с .text-muted) */
-#question-counter, #ui-back-btn {
-    color: var(--text-muted) !important;
-    font-weight: 600;
+.segments-grid {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    gap: 6px;
 }
 
-/* Исправляем Название урока (id="upr-title") */
-#upr-title {
-    color: var(--text-main) !important;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    opacity: 0.9;
+.segment {
+    height: 10px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    transition: all 0.3s ease;
 }
 
-/* Исправляем текст упражнения (конфликт с .text-dark) */
-#upr-text { 
-    color: var(--text-main) !important; 
-    font-size: 1.5rem; 
-    font-weight: 700;
-}
-
-.category-header {
-    color: var(--text-muted) !important;
-    font-weight: 800;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    margin-top: 1.5rem;
-    letter-spacing: 0.5px;
-}
+.segment.active { background-color: #457ab1 !important; transform: scaleY(1.3); }
+.segment.correct { background-color: #2ecc71 !important; }
+.segment.wrong { background-color: #e74c3c !important; }
 
 /* ==========================================================================
-   4. СКРЫТОЕ СЛОВО (Логика подстановки)
+   3. КНОПКИ И ИНТЕРФЕЙС
    ========================================================================== */
-.gap-line { 
-    border-bottom: 3px solid var(--primary); 
-    min-width: 80px; 
-    display: inline-block; 
-    color: transparent !important; /* Скрыто до клика */
-    transition: color 0.3s ease;
+.footer-btn-round {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 !important; border-radius: 50% !important;
 }
 
-.gap-line.revealed { 
-    color: #2ecc71 !important; /* Проявляется мягким зеленым */
-    border-bottom-color: transparent; 
-    font-weight: 800; 
-}
-
-/* ==========================================================================
-   5. КНОПКИ И ЖИЗНИ
-   ========================================================================== */
 .btn-theory { 
-    background-color: var(--btn-theory-bg) !important; 
-    color: var(--btn-theory-border) !important; 
-    border: 3px solid var(--btn-theory-border) !important; 
+    background-color: transparent !important; 
+    color: var(--nav-bg) !important; 
+    border: 3px solid var(--nav-bg) !important; 
     border-radius: 18px !important;
     font-weight: 800 !important;
 }
+
+[data-theme="dark"] .btn-theory { border-color: #64b5f6 !important; color: #64b5f6 !important; }
 
 .btn-exam-custom {
     background-color: rgba(255, 255, 255, 0.05) !important;
@@ -131,39 +89,31 @@ body {
     border-radius: 18px !important;
     font-weight: 800 !important;
     padding: 16px !important;
-}
-
-.btn-primary.d-flex {
-    background-color: #457ab1;
-    border: none;
-    border-radius: 18px;
-    padding: 15px !important;
-}
-
-.lesson-title { color: #ffffff !important; }
-
-.life-icon { width: 22px; height: 22px; margin-left: 2px; }
-.life-lost { opacity: 0.1; filter: grayscale(1); }
-
-/* ==========================================================================
-   6. ФУТЕР И НАВИГАЦИЯ
-   ========================================================================== */
-.navbar { background-color: var(--nav-bg) !important; }
-.app-footer { 
-    background-color: var(--footer-bg); 
-    z-index: 1050;
+    text-transform: uppercase;
 }
 
 .btn-go { 
-    background-color: #457ab1; 
-    color: #fff; 
+    background-color: #457ab1 !important; 
+    color: #fff !important; 
     font-weight: 900; 
     border-radius: 14px; 
-    border: none; 
-    padding: 10px 25px; 
+    border: none;
+    transition: background-color 0.2s, transform 0.1s;
 }
+.btn-go:hover { background-color: #355e8a !important; }
+.btn-go:active { transform: scale(0.95); background-color: #2a4b6e !important; }
 
-#langSelect {
-    background-color: var(--input-bg);
-    color: var(--text-main);
-}
+/* ==========================================================================
+   4. ТЕКСТЫ И ВИДИМОСТЬ
+   ========================================================================== */
+#upr-text { color: var(--text-main) !important; font-size: 1.5rem; font-weight: 700; }
+#question-counter, #ui-back-btn { color: var(--text-muted) !important; font-weight: 600; }
+#upr-title { color: var(--text-main) !important; font-weight: 700; text-transform: uppercase; font-size: 0.9rem; opacity: 0.8; }
+.category-header { color: var(--text-muted) !important; font-weight: 800; text-transform: uppercase; font-size: 0.8rem; margin-top: 1.5rem; }
+
+.gap-line { border-bottom: 3px solid #457ab1; min-width: 80px; display: inline-block; color: transparent !important; }
+.gap-line.revealed { color: #2ecc71 !important; border-bottom-color: transparent; }
+
+.navbar { background-color: var(--nav-bg) !important; }
+.app-footer { background-color: var(--footer-bg); z-index: 1050; }
+#langSelect { background-color: var(--input-bg); color: var(--text-main); border-color: var(--border-color); }

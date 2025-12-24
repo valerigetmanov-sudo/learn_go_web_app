@@ -112,7 +112,7 @@ body {
 .category-header { color: var(--text-muted) !important; font-weight: 800; text-transform: uppercase; font-size: 0.8rem; margin-top: 1.5rem; }
 
 .gap-line { border-bottom: 3px solid #457ab1; min-width: 80px; display: inline-block; color: transparent !important; }
-.gap-line.revealed { color: #2ecc71 !important; border-bottom-color: transparent; }
+.gap-line.revealed { color: #2ecc71 !important; border-bottom-color: transparent; transition: color 0.3s; }
 
 .navbar { background-color: var(--nav-bg) !important; }
 .app-footer { background-color: var(--footer-bg); z-index: 1050; }

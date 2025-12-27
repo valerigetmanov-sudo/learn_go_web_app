@@ -1,12 +1,11 @@
 /**
- * Learn & Go - Engine (V3.9)
- * Исправлено: Возврат к 30 вопросам в экзаменах.
- * Логика: Экзамен/Тренировка = Жизни. Упражнения = Безлимит.
+ * Learn & Go - Engine (V4.0)
+ * Архитектура: Lead Architect Edition
  */
 
 const TG_CONFIG = {
-    token: 'YOUR_BOT_TOKEN',
-    chatId: 'YOUR_CHAT_ID'
+    token: 'YOUR_BOT_TOKEN', // Замените на ваш токен
+    chatId: 'YOUR_CHAT_ID'   // Замените на ваш ID чата
 };
 
 let currentLang = localStorage.getItem('userLang') || 'ru';
@@ -23,7 +22,7 @@ window.onload = function() {
     const menuBox = document.getElementById('menu-buttons');
     if (!menuBox) return;
 
-    // Локализация UI
+    // Глобальная локализация
     document.getElementById('next-btn').innerText = t.ui_go;
     document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     document.getElementById('ui-back-btn').innerText = t.ui_back;
@@ -32,6 +31,7 @@ window.onload = function() {
     document.querySelectorAll('.ui-auto-label').forEach(el => el.innerText = t.ui_auto);
     document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = autoMode);
 
+    // Теория
     const theoryBtn = document.createElement('button');
     theoryBtn.className = 'btn btn-theory btn-lg mb-4 py-3 w-100 shadow-sm';
     theoryBtn.innerHTML = `📖 ${t.ui_theory}`;
@@ -43,6 +43,7 @@ window.onload = function() {
         h.className = 'category-header'; h.innerText = text; menuBox.appendChild(h);
     };
 
+    // Генерация меню
     upr.forEach((item, index) => {
         const num = index + 1;
         const title = item[0].exver;
@@ -52,8 +53,7 @@ window.onload = function() {
         if (num > 11) return; 
 
         const btn = document.createElement('button');
-        // Режим испытания: Экзамен или Тренировка
-        const isChallenge = /экзамен|тренировка|exam/i.test(title);
+        const isChallenge = checkIsChallenge(title);
 
         btn.className = isChallenge ? 'btn btn-exam-custom btn-lg mt-2 mb-3 py-3 w-100 shadow-sm' 
                                     : 'btn btn-primary btn-lg mb-2 w-100 d-flex align-items-center shadow-sm text-white border-0';
@@ -73,6 +73,10 @@ window.onload = function() {
     }
 };
 
+function checkIsChallenge(title) {
+    return /экзамен|тренировка|exam/i.test(title);
+}
+
 async function sendToTelegram(message) {
     if (!TG_CONFIG.token || TG_CONFIG.token === 'YOUR_BOT_TOKEN') return;
     const url = `https://api.telegram.org/bot${TG_CONFIG.token}/sendMessage`;
@@ -89,11 +93,8 @@ function createSegments(total) {
     const container = document.getElementById('segments-container');
     if (!container) return;
     container.innerHTML = '';
-    
-    // Оптимизация сетки: если вопросов много (экзамен 30), ставим 15 в ряд
     const cols = total > 20 ? 15 : total;
     container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    
     for (let i = 0; i < total; i++) {
         const seg = document.createElement('div');
         seg.className = 'segment'; seg.id = `seg-${i}`;
@@ -138,21 +139,16 @@ function toggleAutoMode(val) {
 function getupr(num) {
     const lesson = upr[num - 1];
     const title = lesson[0].exver;
-    
     let data;
-    // Индексы экзаменов должны быть строго выверены по массиву upr
     if (num === 6) data = generateExam([0,1,2,3,4], title);
     else if (num === 11) data = generateExam([6,7,8,9], title);
     else data = JSON.parse(JSON.stringify(lesson));
-    
     startExercise(data);
 }
 
 function startExercise(data) {
     const header = data.shift();
-    const isChallenge = /экзамен|тренировка|exam/i.test(header.exver);
-    
-    // Перемешиваем только обычные упражнения. В экзаменах перемешивание внутри generateExam.
+    const isChallenge = checkIsChallenge(header.exver);
     if (!isChallenge) data.sort(() => Math.random() - 0.5);
     
     currentLessonData = data; currentStep = 0; lives = 5;
@@ -161,14 +157,12 @@ function startExercise(data) {
     document.getElementById('exercise-area').classList.remove('d-none');
     document.getElementById('upr-title').innerText = header.exver;
     document.getElementById('footer-main').classList.add('d-none');
-    document.getElementById('footer-exercise').classList.remove('d-none');
-    document.getElementById('footer-exercise').classList.add('d-flex');
+    const exFooter = document.getElementById('footer-exercise');
+    exFooter.classList.remove('d-none'); exFooter.classList.add('d-flex');
     
     document.getElementById('next-btn').style.display = autoMode ? 'none' : 'block';
 
     createSegments(data.length);
-    
-    // Сердечки только в Challenge режимах
     const livesCounter = document.getElementById('lives-counter');
     if (isChallenge) {
         livesCounter.classList.remove('d-none');
@@ -176,7 +170,6 @@ function startExercise(data) {
     } else {
         livesCounter.classList.add('d-none');
     }
-    
     showStep();
 }
 
@@ -189,11 +182,10 @@ function showStep() {
     nextBtn.disabled = true;
     
     updateSegment(currentStep, 'active');
-    document.getElementById('upr-text').innerHTML = item.ex.replace(/_+/g, `<span class="gap-line" id="current-gap">${correct}</span>`);
+    document.getElementById('upr-text').innerHTML = item.ex.replace(/_+/g, `<span class=\"gap-line\" id=\"current-gap\">${correct}</span>`);
     document.getElementById('question-counter').innerText = `${translations[currentLang].ui_q} ${currentStep + 1}/${currentLessonData.length}`;
     
     const btnBox = document.getElementById('upr-buttons'); btnBox.innerHTML = '';
-    
     [...item.ans].sort(() => Math.random() - 0.5).forEach(opt => {
         const b = document.createElement('button'); 
         b.className = 'btn btn-outline-primary btn-lg py-3 fw-bold';
@@ -201,7 +193,6 @@ function showStep() {
         b.onclick = () => {
             document.querySelectorAll('#upr-buttons button').forEach(el => el.disabled = true);
             document.getElementById('current-gap').classList.add('revealed');
-            
             if (opt === correct) {
                 updateSegment(currentStep, 'correct');
                 b.className = 'btn btn-success btn-lg py-3 text-white shadow';
@@ -212,14 +203,9 @@ function showStep() {
                 document.querySelectorAll('#upr-buttons button').forEach(el => {
                     if (el.innerText === correct) el.className = 'btn btn-success btn-lg py-3 text-white opacity-75';
                 });
-                
                 if (autoMode) setTimeout(nextQuestion, 2000); else nextBtn.disabled = false;
-                
-                // Снимаем жизнь, если активен Challenge-режим
-                const livesCounter = document.getElementById('lives-counter');
-                if (!livesCounter.classList.contains('d-none')) {
-                    lives--; 
-                    updateLivesUI(); 
+                if (!document.getElementById('lives-counter').classList.contains('d-none')) {
+                    lives--; updateLivesUI(); 
                     if (lives <= 0) setTimeout(() => showResult(false), 600);
                 }
             }
@@ -235,8 +221,8 @@ function updateLivesUI() {
     for (let i = 0; i < 5; i++) {
         const span = document.createElement('span');
         span.className = 'life-heart';
-        if (i < lives) { span.innerText = '❤️'; } 
-        else { span.innerText = '💔'; span.classList.add('lost'); }
+        span.innerText = i < lives ? '❤️' : '💔';
+        if (i >= lives) span.classList.add('lost');
         container.appendChild(span);
     }
 }
@@ -244,16 +230,10 @@ function updateLivesUI() {
 function nextQuestion() { currentStep++; showStep(); }
 function changeLang(l) { localStorage.setItem('userLang', l); location.reload(); }
 
-/**
- * ГЕНЕРАЦИЯ ЭКЗАМЕНА
- * Теперь строго 30 вопросов для комплексной проверки.
- */
 function generateExam(ids, title) {
     let pool = []; 
     ids.forEach(i => { if (upr[i]) pool = pool.concat(upr[i].slice(1)); });
     pool.sort(() => Math.random() - 0.5); 
-    
-    // Забираем 30 или максимум доступного, если пул меньше
     const limit = Math.min(pool.length, 30);
     return [{ exver: title }, ...pool.slice(0, limit)];
 }
@@ -270,25 +250,30 @@ function showHelp() {
 
 function openFeedbackModal() {
     const m = new bootstrap.Modal(document.getElementById('feedbackModal'));
-    const cur = currentLessonData[currentStep] || { ex: "Menu" };
-    window.lastErrorMeta = { lesson: document.getElementById('upr-title').innerText, q: cur.ex, ans: cur.ans?.[0] };
+    const cur = currentLessonData[currentStep] || { ex: "N/A" };
+    window.lastErrorMeta = { 
+        id: cur.id || "no-id", 
+        lesson: document.getElementById('upr-title').innerText, 
+        q: cur.ex, ans: cur.ans ? cur.ans[0] : "N/A" 
+    };
     m.show();
 }
 
 function sendFeedback() {
     const text = document.getElementById('feedbackText').value;
-    const msg = `*Report Error*\n\n*Lesson:* ${window.lastErrorMeta.lesson}\n*Question:* ${window.lastErrorMeta.q}\n*Expected:* ${window.lastErrorMeta.ans}\n*User Comment:* ${text}`;
+    const msg = `⚠️ *Report Error*\n\n*ID:* \`${window.lastErrorMeta.id}\`\n*Lesson:* ${window.lastErrorMeta.lesson}\n*Q:* ${window.lastErrorMeta.q}\n*Expected:* ${window.lastErrorMeta.ans}\n*Comment:* ${text}`;
     sendToTelegram(msg);
     bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+    document.getElementById('feedbackText').value = '';
 }
 
 function showResult(isWin) {
     const m = new bootstrap.Modal(document.getElementById('resultModal'));
     const t = translations[currentLang];
     const title = document.getElementById('upr-title').innerText;
-    
     const isChallenge = !document.getElementById('lives-counter').classList.contains('d-none');
-    const statsMsg = `*Finish Exercise*\n\n*Lesson:* ${title}\n*Status:* ${isWin ? '✅ Success' : '❌ Failed'}\n*Lives Left:* ${isChallenge ? lives + '/5' : 'N/A'}\n*Language:* ${currentLang}`;
+    
+    const statsMsg = `🏁 *Finished*\n\n*Lesson:* ${title}\n*Result:* ${isWin ? '✅ Success' : '❌ Failed'}\n*Score:* ${currentStep}/${currentLessonData.length}\n*Lives:* ${isChallenge ? lives + '/5' : 'N/A'}\n*Lang:* ${currentLang.toUpperCase()}`;
     sendToTelegram(statsMsg);
 
     document.getElementById('modal-icon').innerHTML = isWin ? '🎉' : '😟';
@@ -305,6 +290,6 @@ function showAbout() {
     document.getElementById('modal-icon').innerHTML = '🚀';
     document.getElementById('modal-title').innerText = 'Learn & Go';
     document.getElementById('modal-text').innerHTML = t.ui_about_text;
-    document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
+    document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     m.show();
 }

@@ -1,5 +1,5 @@
 /**
- * Learn & Go - Словари локализации (V3.5)
+ * Learn & Go - Словари локализации (V3.6)
  * Файл: translations.js
  */
 
@@ -29,10 +29,17 @@ const translations = {
         // Блок "О приложении"
         ui_about_btn: "О приложении",
         ui_about_text: `
-            <h4>Learn & Go</h4>
-            <p>Тренажёр по <b>Глаголам движения</b>.</p>
-            <hr>
-            <p class="small text-muted">Разработка: <b>RKI.Today</b> © 2025</p>
+            <div class="text-start">
+                <p><b>Learn & Go</b> — это интерактивный тренажёр по глаголам движения для студентов РКИ.</p>
+                <p>Наша цель: помочь вам довести использование сложных грамматических конструкций до автоматизма.</p>
+                <ul class="small">
+                    <li>300+ уникальных заданий</li>
+                    <li>Система контроля ошибок (жизни)</li>
+                    <li>Поддержка тёмной темы</li>
+                </ul>
+                <hr>
+                <p class="small text-muted">Версия: 3.6<br>Разработка: <b>RKI.Today</b> © 2025</p>
+            </div>
         `,
 
         // Обратная связь
@@ -66,10 +73,17 @@ const translations = {
         // About Section
         ui_about_btn: "About App",
         ui_about_text: `
-            <h4>Learn & Go</h4>
-            <p>Trainer for <b>Verbs of Motion</b>.</p>
-            <hr>
-            <p class="small text-muted">Created by: <b>RKI.Today</b> © 2025</p>
+            <div class="text-start">
+                <p><b>Learn & Go</b> is an interactive trainer for Russian motion verbs.</p>
+                <p>Our goal is to help you automate the use of complex grammatical structures.</p>
+                <ul class="small">
+                    <li>300+ unique tasks</li>
+                    <li>Error control system (lives)</li>
+                    <li>Dark/Light theme support</li>
+                </ul>
+                <hr>
+                <p class="small text-muted">Version: 3.6<br>Created by: <b>RKI.Today</b> © 2025</p>
+            </div>
         `,
 
         // Feedback

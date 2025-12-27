@@ -1,4 +1,4 @@
-const CACHE_NAME = 'learn-go-v2';
+const CACHE_NAME = 'learn-go-v3';
 
 
 const ASSETS = [

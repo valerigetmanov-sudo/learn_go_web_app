@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Learn & Go - Глаголы движения</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#457ab1">
-    <link rel="apple-touch-icon" href="images/logo_hum.png">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -30,43 +25,47 @@
         <div id="exercise-area" class="card p-4 d-none content-wrapper border-0 shadow-lg">
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <div id="question-counter" class="small fw-bold"></div>
-                <div id="lives-counter" class="d-flex"></div>
+                <div id="lives-counter" class="d-flex gap-1"></div>
             </div>
             
             <div id="segments-container" class="segments-grid mb-4"></div>
 
             <div id="upr-title" class="text-center mb-2"></div>
             <div id="upr-text" class="lead my-4 fw-bold p-2 text-center"></div>
-            <div id="upr-buttons" class="d-grid gap-3 mb-3"></div>
-            <button id="ui-back-btn" class="btn btn-link mt-2 text-decoration-none small w-100" onclick="exitToMenu()"></button>
+            
+            <div id="upr-buttons" class="d-grid gap-3 mb-4"></div>
+            
+            <button id="next-btn" class="btn btn-go w-100 py-3 mb-2 shadow-sm" onclick="nextQuestion()"></button>
         </div>
     </div>
 
     <footer class="fixed-bottom app-footer border-top shadow-lg">
         <div class="container content-wrapper py-2">
-            
             <div id="footer-main" class="d-flex justify-content-between align-items-center">
-    <div class="footer-col d-flex align-items-center gap-2">
-        <select id="langSelect" class="form-select form-select-sm" onchange="changeLang(this.value)" style="width: auto; font-size: 0.7rem; border-radius: 8px;"></select>
-        
-        <button class="btn btn-sm btn-outline-secondary rounded-circle theme-toggle-btn footer-btn-round" onclick="toggleTheme()">🌙</button>
-        
-        <button id="ui-about-btn" class="btn btn-sm btn-outline-secondary rounded-circle footer-btn-round ms-1" onclick="showAbout()" title="About">ℹ️</button>
-    </div>
-    <div class="footer-col small text-muted fw-bold">RKI.Today</div>
-</div>
+                <div class="footer-col d-flex align-items-center gap-2">
+                    <select id="langSelect" class="form-select form-select-sm" onchange="changeLang(this.value)" style="width: auto; font-size: 0.7rem; border-radius: 8px;"></select>
+                    <button class="btn btn-sm btn-outline-secondary rounded-circle theme-toggle-btn footer-btn-round" onclick="toggleTheme()">🌙</button>
+                    <div class="form-check form-switch ms-2">
+                        <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
+                    </div>
+                    <div class="ui-auto-label small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
+                </div>
+                <div class="footer-col"><a href="#" class="text-decoration-none fw-bold small text-muted" onclick="showAbout()">RKI.Today</a></div>
+            </div>
             
             <div id="footer-exercise" class="d-none justify-content-between align-items-center">
                 <div class="footer-col d-flex gap-2 align-items-center">
-                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round" onclick="showHelp(true)">📖</button>
+                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round" onclick="showHelp()">📖</button>
+                    <button class="btn btn-light rounded-circle shadow-sm footer-btn-round" onclick="openFeedbackModal()">✉️</button>
                     <button class="btn btn-light rounded-circle shadow-sm footer-btn-round theme-toggle-btn" onclick="toggleTheme()">🌙</button>
-                    
                     <div class="form-check form-switch ms-1 d-flex align-items-center">
                         <input class="form-check-input auto-mode-check" type="checkbox" onchange="toggleAutoMode(this.checked)">
                         <div class="ui-auto-label ms-2 small fw-bold text-uppercase" style="font-size:0.55rem; color:#457ab1;"></div>
                     </div>
                 </div>
-                <div class="footer-col"><button id="next-btn" class="btn btn-go px-4 py-2" onclick="nextQuestion()"></button></div>
+                <div class="footer-col">
+                    <button id="ui-back-btn" class="btn btn-link text-decoration-none fw-bold" onclick="location.reload()" style="color: var(--text-muted);"></button>
+                </div>
             </div>
         </div>
     </footer>
@@ -102,15 +101,9 @@
     <script src="data_verbs.js"></script>
     <script src="data_prefixes.js"></script>
     <script src="engin_app.js"></script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW error:', err));
-            });
-        }
-    </script>
+<!-- WUUNU SNIPPET - DON'T CHANGE THIS (START) -->
+<script>window.__WUUNU_WS__ = "http://127.0.0.1:50528/?token=547ba1698499145e41863d0c890bed8f267c287804cd2ef7";</script>
+<script id="wuunu-widget-script" data-wuunu-widget src="https://cdn.jsdelivr.net/npm/@wuunu/widget@0.1.20" defer crossOrigin="anonymous"></script>
+<!-- WUUNU SNIPPET - DON'T CHANGE THIS (END) -->
 </body>
 </html>

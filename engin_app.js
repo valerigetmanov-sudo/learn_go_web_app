@@ -1,3 +1,14 @@
+/**
+ * Learn & Go - Engine (V3.9)
+ * Исправлено: Возврат к 30 вопросам в экзаменах.
+ * Логика: Экзамен/Тренировка = Жизни. Упражнения = Безлимит.
+ */
+
+const TG_CONFIG = {
+    token: 'YOUR_BOT_TOKEN',
+    chatId: 'YOUR_CHAT_ID'
+};
+
 let currentLang = localStorage.getItem('userLang') || 'ru';
 let autoMode = localStorage.getItem('autoMode') !== 'false';
 let currentLessonData = [];
@@ -12,7 +23,7 @@ window.onload = function() {
     const menuBox = document.getElementById('menu-buttons');
     if (!menuBox) return;
 
-    // Локализация
+    // Локализация UI
     document.getElementById('next-btn').innerText = t.ui_go;
     document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     document.getElementById('ui-back-btn').innerText = t.ui_back;
@@ -21,7 +32,6 @@ window.onload = function() {
     document.querySelectorAll('.ui-auto-label').forEach(el => el.innerText = t.ui_auto);
     document.querySelectorAll('.auto-mode-check').forEach(el => el.checked = autoMode);
 
-    // Теория
     const theoryBtn = document.createElement('button');
     theoryBtn.className = 'btn btn-theory btn-lg mb-4 py-3 w-100 shadow-sm';
     theoryBtn.innerHTML = `📖 ${t.ui_theory}`;
@@ -35,15 +45,20 @@ window.onload = function() {
 
     upr.forEach((item, index) => {
         const num = index + 1;
+        const title = item[0].exver;
+        
         if (num === 1) createHeader(t.ui_base);
         if (num === 7) createHeader(t.ui_pref);
-        const btn = document.createElement('button');
-        const title = item[0].exver;
-        const isExam = title.toLowerCase().includes('экзамен');
+        if (num > 11) return; 
 
-        btn.className = isExam ? 'btn btn-exam-custom btn-lg mt-2 mb-3 py-3 w-100 shadow-sm' 
-                               : 'btn btn-primary btn-lg mb-2 w-100 d-flex align-items-center shadow-sm text-white border-0';
-        btn.innerHTML = isExam ? `🏆 ${title}` : `<span class="lesson-num me-2">${num}.</span> <span class="lesson-title text-start">${title}</span>`;
+        const btn = document.createElement('button');
+        // Режим испытания: Экзамен или Тренировка
+        const isChallenge = /экзамен|тренировка|exam/i.test(title);
+
+        btn.className = isChallenge ? 'btn btn-exam-custom btn-lg mt-2 mb-3 py-3 w-100 shadow-sm' 
+                                    : 'btn btn-primary btn-lg mb-2 w-100 d-flex align-items-center shadow-sm text-white border-0';
+        
+        btn.innerHTML = isChallenge ? `🏆 ${title}` : `<span class="lesson-num me-2">${num}.</span> <span class="lesson-title text-start">${title}</span>`;
         btn.onclick = () => getupr(num);
         menuBox.appendChild(btn);
     });
@@ -58,10 +73,27 @@ window.onload = function() {
     }
 };
 
+async function sendToTelegram(message) {
+    if (!TG_CONFIG.token || TG_CONFIG.token === 'YOUR_BOT_TOKEN') return;
+    const url = `https://api.telegram.org/bot${TG_CONFIG.token}/sendMessage`;
+    try {
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TG_CONFIG.chatId, text: message, parse_mode: 'Markdown' })
+        });
+    } catch (e) { console.error('TG Error:', e); }
+}
+
 function createSegments(total) {
     const container = document.getElementById('segments-container');
     if (!container) return;
     container.innerHTML = '';
+    
+    // Оптимизация сетки: если вопросов много (экзамен 30), ставим 15 в ряд
+    const cols = total > 20 ? 15 : total;
+    container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    
     for (let i = 0; i < total; i++) {
         const seg = document.createElement('div');
         seg.className = 'segment'; seg.id = `seg-${i}`;
@@ -104,18 +136,24 @@ function toggleAutoMode(val) {
 }
 
 function getupr(num) {
-    const t = translations[currentLang];
+    const lesson = upr[num - 1];
+    const title = lesson[0].exver;
+    
     let data;
-    if (num === 6) data = generateExam([0,1,2,3,4], t.ui_exam);
-    else if (num === 11) data = generateExam([6,7,8,9], t.ui_exam);
-    else data = JSON.parse(JSON.stringify(upr[num-1]));
+    // Индексы экзаменов должны быть строго выверены по массиву upr
+    if (num === 6) data = generateExam([0,1,2,3,4], title);
+    else if (num === 11) data = generateExam([6,7,8,9], title);
+    else data = JSON.parse(JSON.stringify(lesson));
+    
     startExercise(data);
 }
 
 function startExercise(data) {
     const header = data.shift();
-    const isExam = header.exver.toLowerCase().includes('экзамен');
-    if (!isExam) data.sort(() => Math.random() - 0.5);
+    const isChallenge = /экзамен|тренировка|exam/i.test(header.exver);
+    
+    // Перемешиваем только обычные упражнения. В экзаменах перемешивание внутри generateExam.
+    if (!isChallenge) data.sort(() => Math.random() - 0.5);
     
     currentLessonData = data; currentStep = 0; lives = 5;
 
@@ -126,16 +164,19 @@ function startExercise(data) {
     document.getElementById('footer-exercise').classList.remove('d-none');
     document.getElementById('footer-exercise').classList.add('d-flex');
     
-    // Сразу применяем видимость кнопки Go
     document.getElementById('next-btn').style.display = autoMode ? 'none' : 'block';
 
     createSegments(data.length);
-    if (isExam) {
-        document.getElementById('lives-counter').classList.remove('d-none'); 
+    
+    // Сердечки только в Challenge режимах
+    const livesCounter = document.getElementById('lives-counter');
+    if (isChallenge) {
+        livesCounter.classList.remove('d-none');
         updateLivesUI();
-    } else { 
-        document.getElementById('lives-counter').classList.add('d-none'); 
+    } else {
+        livesCounter.classList.add('d-none');
     }
+    
     showStep();
 }
 
@@ -171,9 +212,14 @@ function showStep() {
                 document.querySelectorAll('#upr-buttons button').forEach(el => {
                     if (el.innerText === correct) el.className = 'btn btn-success btn-lg py-3 text-white opacity-75';
                 });
+                
                 if (autoMode) setTimeout(nextQuestion, 2000); else nextBtn.disabled = false;
-                if (!document.getElementById('lives-counter').classList.contains('d-none')) {
-                    lives--; updateLivesUI(); 
+                
+                // Снимаем жизнь, если активен Challenge-режим
+                const livesCounter = document.getElementById('lives-counter');
+                if (!livesCounter.classList.contains('d-none')) {
+                    lives--; 
+                    updateLivesUI(); 
                     if (lives <= 0) setTimeout(() => showResult(false), 600);
                 }
             }
@@ -184,6 +230,7 @@ function showStep() {
 
 function updateLivesUI() {
     const container = document.getElementById('lives-counter');
+    if (!container || container.classList.contains('d-none')) return;
     container.innerHTML = '';
     for (let i = 0; i < 5; i++) {
         const span = document.createElement('span');
@@ -197,11 +244,18 @@ function updateLivesUI() {
 function nextQuestion() { currentStep++; showStep(); }
 function changeLang(l) { localStorage.setItem('userLang', l); location.reload(); }
 
+/**
+ * ГЕНЕРАЦИЯ ЭКЗАМЕНА
+ * Теперь строго 30 вопросов для комплексной проверки.
+ */
 function generateExam(ids, title) {
     let pool = []; 
     ids.forEach(i => { if (upr[i]) pool = pool.concat(upr[i].slice(1)); });
     pool.sort(() => Math.random() - 0.5); 
-    return [{ exver: title }, ...pool.slice(0, 25)];
+    
+    // Забираем 30 или максимум доступного, если пул меньше
+    const limit = Math.min(pool.length, 30);
+    return [{ exver: title }, ...pool.slice(0, limit)];
 }
 
 function showHelp() {
@@ -217,21 +271,29 @@ function showHelp() {
 function openFeedbackModal() {
     const m = new bootstrap.Modal(document.getElementById('feedbackModal'));
     const cur = currentLessonData[currentStep] || { ex: "Menu" };
-    window.lastErrorMeta = { id: cur.id || "N/A", lesson: document.getElementById('upr-title').innerText, q: cur.ex, ans: cur.ans?.[0] };
+    window.lastErrorMeta = { lesson: document.getElementById('upr-title').innerText, q: cur.ex, ans: cur.ans?.[0] };
     m.show();
 }
 
 function sendFeedback() {
-    const body = `Error: ${document.getElementById('feedbackText').value}\nContext: ${JSON.stringify(window.lastErrorMeta)}`;
-    window.location.href = `mailto:admin@rki.today?subject=Report [ID: ${window.lastErrorMeta.id}]&body=${encodeURIComponent(body)}`;
+    const text = document.getElementById('feedbackText').value;
+    const msg = `*Report Error*\n\n*Lesson:* ${window.lastErrorMeta.lesson}\n*Question:* ${window.lastErrorMeta.q}\n*Expected:* ${window.lastErrorMeta.ans}\n*User Comment:* ${text}`;
+    sendToTelegram(msg);
+    bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
 }
 
 function showResult(isWin) {
     const m = new bootstrap.Modal(document.getElementById('resultModal'));
     const t = translations[currentLang];
+    const title = document.getElementById('upr-title').innerText;
+    
+    const isChallenge = !document.getElementById('lives-counter').classList.contains('d-none');
+    const statsMsg = `*Finish Exercise*\n\n*Lesson:* ${title}\n*Status:* ${isWin ? '✅ Success' : '❌ Failed'}\n*Lives Left:* ${isChallenge ? lives + '/5' : 'N/A'}\n*Language:* ${currentLang}`;
+    sendToTelegram(statsMsg);
+
     document.getElementById('modal-icon').innerHTML = isWin ? '🎉' : '😟';
     document.getElementById('modal-title').innerText = isWin ? t.ui_win : t.ui_fail;
-    document.getElementById('modal-text').innerText = isWin ? "Вы справились!" : "Нужно еще немного практики.";
+    document.getElementById('modal-text').innerText = isWin ? t.ui_win_desc : t.ui_fail_desc;
     document.getElementById('ui-modal-close').innerText = t.ui_modal_ok;
     m.show();
     document.getElementById('resultModal').addEventListener('hidden.bs.modal', () => location.reload(), { once: true });
@@ -239,9 +301,10 @@ function showResult(isWin) {
 
 function showAbout() {
     const m = new bootstrap.Modal(document.getElementById('resultModal'));
+    const t = translations[currentLang];
     document.getElementById('modal-icon').innerHTML = '🚀';
     document.getElementById('modal-title').innerText = 'Learn & Go';
-    document.getElementById('modal-text').innerHTML = 'Тренажёр по глаголам движения.<br>Академия <b>RKI.Today</b> © 2025';
+    document.getElementById('modal-text').innerHTML = t.ui_about_text;
     document.getElementById('ui-modal-close').innerText = translations[currentLang].ui_modal_ok;
     m.show();
 }

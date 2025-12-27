@@ -1,6 +1,6 @@
 /**
- * Learn & Go - Словари локализации (V3.6)
- * Файл: translations.js
+ * Learn & Go - Словари локализации (V4.0)
+ * Оптимизировано для UI/UX и Telegram API
  */
 
 const translations = {
@@ -38,14 +38,14 @@ const translations = {
                     <li>Поддержка тёмной темы</li>
                 </ul>
                 <hr>
-                <p class="small text-muted">Версия: 3.6<br>Разработка: <b>RKI.Today</b> © 2025</p>
+                <p class="small text-muted">Версия: 4.0<br>Разработка: <b>RKI.Today</b> © 2025</p>
             </div>
         `,
 
         // Обратная связь
         ui_feed_t: "Отправить сообщение",
         ui_feed_s: "Отправить",
-        ui_feed_ok: "Сообщение отправлено!"
+        ui_feed_ok: "Сообщение отправлено!" // Нужно для уведомления после fetch
     },
     
     en: {
@@ -54,7 +54,7 @@ const translations = {
         // Main Menu
         ui_theory: "Theory",
         ui_base: "Basic Verbs",
-        ui_pref: "Verbs with Prefixes",
+        ui_pref: "Prefix Verbs",
         ui_exam: "Exam",
         
         // Exercise Interface
@@ -82,13 +82,13 @@ const translations = {
                     <li>Dark/Light theme support</li>
                 </ul>
                 <hr>
-                <p class="small text-muted">Version: 3.6<br>Created by: <b>RKI.Today</b> © 2025</p>
+                <p class="small text-muted">Version: 4.0<br>Created by: <b>RKI.Today</b> © 2025</p>
             </div>
         `,
 
         // Feedback
         ui_feed_t: "Report an Error",
-        ui_feed_s: "Send to Telegram",
+        ui_feed_s: "Send",
         ui_feed_ok: "Message sent!"
     }
 };
